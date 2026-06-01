@@ -8,8 +8,8 @@ const USERS_DATABASE = {
         firebaseUrl: "https://workin--music-default-rtdb.firebaseio.com/midias.json",
         ytApiKey: "AIzaSyATXiihPhDZohvy8mJKsAk8vjZ4WkPekmQ"
     },
-    "dipriv": { 
-        password: "arcnet215", 
+    "diegosilvaeo": { 
+        password: "diego2154", 
         defaultColor: "#e74c3c",
         firebaseUrl: "https://workin--music-default-rtdb.firebaseio.com/canais.json",
         ytApiKey: "AIzaSyD2x7SjdblFqlxQdKHlgfSZA5Nmjb1QbMk"

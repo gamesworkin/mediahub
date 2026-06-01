@@ -11,7 +11,7 @@ const USERS_DATABASE = {
     "dipriv": { 
         password: "arcnet215", 
         defaultColor: "#e74c3c",
-        firebaseUrl: "https://workin--music-default-rtdb.firebaseio.com/midias.json",
+        firebaseUrl: "https://workin--music-default-rtdb.firebaseio.com/canais.json",
         ytApiKey: "AIzaSyD2x7SjdblFqlxQdKHlgfSZA5Nmjb1QbMk"
     }
 };

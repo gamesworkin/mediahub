@@ -12,7 +12,7 @@ const USERS_DATABASE = {
         password: "diego2154", 
         defaultColor: "#e74c3c",
         firebaseUrl: "https://workin--music-default-rtdb.firebaseio.com/canais.json",
-        ytApiKey: "AIzaSyATXiihPhDZohvy8mJKsAk8vjZ4WkPekmQ"
+        ytApiKey: "AIzaSyD2x7SjdblFqlxQdKHlgfSZA5Nmjb1QbMk"
     }
 };
 

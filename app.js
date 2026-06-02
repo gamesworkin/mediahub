@@ -2,7 +2,7 @@
 // CONFIGURAÇÃO INICIAL E CREDENCIAIS DO FIREBASE
 // ==========================================
 const firebaseConfig = {
-    apiKey: "AIzaSyA3obnKmTrF4zH6pdV8ogqZ88r7uACy3BI", // Substitua pela sua API Key do Console do Firebase
+    apiKey: "AIzaSyA3obnKmTrF4zH6pdV8ogqZ88r7uACy3BI", 
     authDomain: "workin--music.firebaseapp.com",
     databaseURL: "https://workin--music-default-rtdb.firebaseio.com",
     projectId: "workin--music",
@@ -11,12 +11,10 @@ const firebaseConfig = {
     appId: "1:588256543173:web:eddf01b30628df90ca8bac"
 };
 
-// Inicializa o Firebase SDK com tratamento de redundância
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
 
-// Mapeamento Multi-Tenant por E-mail (Sem palavras-passe expostas no código)
 const USERS_DATABASE = {
     "diego@midias.com": { 
         defaultColor: "#11ffcf",

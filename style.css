@@ -1,5 +1,5 @@
 /* ==========================================
-   VARIÁVEIS DINÂMICAS DO TEMA
+   VARIÁVEIS DINÂMICAS DO TEMA PADRÃO (YOUTUBE)
    ========================================== */
 :root {
     --theme-color: #ff0000;
@@ -13,84 +13,155 @@
 }
 
 /* ==========================================
-   TEMAS ESPECÍFICOS
+   ESCOPO 2: TEMA NETFLIX 
    ========================================== */
-body.theme-netflix { --bg-main: #141414; --bg-card: #181818; --bg-sidebar: #000000; --text-gray: #808080; --border-color: #262626; }
-body.theme-futurista { --bg-main: #0a0a16; --bg-card: #12122c; --bg-sidebar: #0d0d21; --text-gray: #8bd8ff; --border-color: #00f0ff44; }
-body.theme-claro { --bg-main: #c7c7c7; --bg-card: #a3a3a3; --bg-sidebar: #d7d7d7; --text-white: #050505; --text-gray: #65676b; --border-color: #9d9d9d; }
-
-/* Correção de cores para o tema claro (garantindo visibilidade) */
-body.theme-claro h4, body.theme-claro .brand-title, body.theme-claro .crud-item span { color: #050505 !important; }
+body.theme-netflix {
+    --bg-main: #141414;
+    --bg-card: #181818;
+    --bg-sidebar: #000000;
+    --text-white: #ffffff;
+    --text-gray: #808080;
+    --border-color: #262626;
+}
 
 /* ==========================================
-   RESET E ESTRUTURA GERAL
+   ESCOPO 3: TEMA FUTURISTA / CYBERPUNK
+   ========================================== */
+body.theme-futurista {
+    --bg-main: #0a0a16;
+    --bg-card: #12122c;
+    --bg-sidebar: #0d0d21;
+    --text-white: #ffffff;
+    --text-gray: #8bd8ff;
+    --border-color: #00f0ff44;
+}
+body.theme-futurista .card { border: 1px solid var(--theme-color); box-shadow: 0 0 10px rgba(0, 240, 255, 0.1); }
+
+/* ==========================================
+   ESCOPO 4: TEMA CLARO MODERNO
+   ========================================== */
+body.theme-claro {
+    --bg-main: #c7c7c7;
+    --bg-card: #a3a3a3;
+    --bg-sidebar: #d7d7d7;
+    --text-white: #050505;
+    --text-gray: #65676b;
+    --border-color: #9d9d9d;
+}
+body.theme-claro h4, body.theme-claro .brand-title, body.theme-claro .player-header h3, body.theme-claro .modal-header h2, body.theme-claro .modal-header h3, body.theme-claro .tree-panel-crud h3, body.theme-claro #chan-title-text, body.theme-claro .crud-item span { color: #050505 !important; }
+body.theme-claro .search-bar input, body.theme-claro .sidebar-search input, body.theme-claro .input-group input, body.theme-claro .form-row-inline input, body.theme-claro .preview-fields input, body.theme-claro .form-group-select select, body.theme-claro .action-card-json textarea, body.theme-claro .input-block input { background: #afafaf !important; color: #050505 !important; border: 1px solid #858585 !important; }
+body.theme-claro .card { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+body.theme-claro .crud-item, body.theme-claro .action-card-json, body.theme-claro .preview-card-box { background: #8c8c8c !important; border: 1px solid #8a8a8a !important; }
+
+/* ==========================================
+   RESET E CONFIGURAÇÕES GERAIS
    ========================================== */
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-body { background-color: var(--bg-main); color: #e1e1e6; overflow-x: hidden; }
+body { background-color: var(--bg-main); color: #e1e1e6; overflow-x: hidden; transition: background-color 0.3s ease, border-color 0.3s ease; }
 .hidden { display: none !important; }
+button { cursor: pointer; border: none; border-radius: 4px; font-weight: 600; transition: background 0.2s, transform 0.1s, box-shadow 0.2s; }
+button:active { transform: scale(0.98); }
+.btn-primary { background: var(--theme-color); color: #fff; }
+.btn-primary:hover { background: var(--theme-color-hover); }
+.btn-icon { background: transparent; color: var(--text-white); font-size: 1.2rem; padding: 8px; }
+.btn-mobile-only { display: none !important; }
 
 /* ==========================================
-   LAYOUT PRINCIPAL E CABEÇALHO (Hierarquia Corrigida)
+   1. TELA DE LOGIN
+   ========================================== */
+.login-container { display: flex; justify-content: center; align-items: center; min-height: 100vh; background: linear-gradient(135deg, var(--bg-sidebar) 0%, var(--bg-main) 100%); padding: 20px; }
+.login-box { background: var(--bg-card); padding: 40px; border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); width: 100%; max-width: 400px; border: 1px solid var(--border-color); }
+.login-logo-wrapper { display: flex; justify-content: center; align-items: center; margin-bottom: 20px; }
+.login-logo-img { object-fit: contain; border-radius: 8px; }
+.login-box h2 { text-align: center; margin-bottom: 24px; color: var(--theme-color); }
+.input-group { margin-bottom: 20px; }
+.input-group label { display: block; margin-bottom: 8px; color: var(--text-gray); font-size: 0.9rem; }
+.input-group input { width: 100%; padding: 12px; background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-white); font-size: 1rem; }
+.input-group input:focus { border-color: var(--theme-color); outline: none; }
+.login-box button { width: 100%; padding: 14px; font-size: 1rem; }
+
+/* ==========================================
+   2. LAYOUT PRINCIPAL
    ========================================== */
 .main-wrapper { display: flex; flex-direction: column; min-height: 100vh; }
-.app-header { 
-    display: flex; justify-content: space-between; align-items: center; 
-    background: var(--bg-card); padding: 12px 20px; border-bottom: 1px solid var(--border-color); 
-    position: fixed; top: 0; left: 0; width: 100%; height: 60px; z-index: 100; 
-}
-.content-body { display: flex; flex: 1; margin-top: 60px; }
-
-/* ==========================================
-   SIDEBAR E LAYOUT
-   ========================================== */
-.sidebar-panel { 
-    width: 260px; background: var(--bg-sidebar); border-right: 1px solid var(--border-color); 
-    padding: 15px; flex-shrink: 0; z-index: 90;
-}
+.app-header { display: flex; justify-content: space-between; align-items: center; background: var(--bg-card); padding: 12px 20px; border-bottom: 1px solid var(--border-color); position: fixed; top: 0; left: 0; width: 100%; z-index: 100; height: 60px; }
+.header-left { display: flex; align-items: center; gap: 15px; }
+.brand-title { font-size: 1.3rem; color: var(--theme-color); cursor: pointer; }
+.header-center { flex: 1; max-width: 500px; margin: 0 20px; }
+.search-bar { position: relative; display: flex; align-items: center; width: 100%; }
+.search-bar i { position: absolute; left: 12px; color: var(--text-gray); }
+.search-bar input { width: 100%; padding: 10px 12px 10px 38px; background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 20px; color: var(--text-white); }
+.mobile-search-container { background: var(--bg-card); padding: 10px 20px; border-bottom: 1px solid var(--border-color); position: fixed; top: 60px; left: 0; width: 100%; z-index: 99; }
+.header-right { display: flex; gap: 10px; align-items: center; }
+.btn-admin { background: var(--bg-card); border: 1px solid var(--theme-color); color: var(--theme-color); padding: 8px 16px; position: relative; z-index: 101; }
+.btn-admin:hover { background: var(--theme-color); color: #fff; }
+.btn-logout { background: #e74c3c; color: #fff; padding: 8px 16px; }
+.btn-logout:hover { background: #c0392b; }
+.content-body { display: flex; flex: 1; margin-top: 60px; min-height: calc(100vh - 60px); }
+.sidebar-panel { width: 260px; background: var(--bg-sidebar); border-right: 1px solid var(--border-color); padding: 15px; transition: width 0.3s, transform 0.3s; flex-shrink: 0; }
 .sidebar-panel.collapsed { width: 0; padding: 0; overflow: hidden; border: none; }
+.sidebar-search input { width: 100%; padding: 8px; background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-white); border-radius: 4px; margin-bottom: 15px; }
+.tree-root { list-style: none; }
+.category-toggle { display: block; padding: 10px; background: var(--bg-card); margin-bottom: 5px; border-radius: 4px; cursor: pointer; font-weight: 600; }
+.tree-sub { list-style: none; padding-left: 15px; margin-bottom: 10px; }
+.tree-sub li { padding: 8px 10px; border-left: 2px solid var(--theme-color); margin-top: 2px; cursor: pointer; font-size: 0.95rem; color: var(--text-white); }
+
+/* ==========================================
+   3. MOSAICO
+   ========================================== */
 .mosaic-container { flex: 1; padding: 24px; background: var(--bg-main); }
+.breadcrumb-bar { margin-bottom: 20px; color: var(--text-gray); font-weight: 500; }
+.bc-item { cursor: pointer; }
+.bc-item:hover { color: var(--theme-color); }
+.mosaic-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+.card { background: var(--bg-card); border-radius: 6px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.3); cursor: pointer; position: relative; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; }
+.card:hover { transform: translateY(-4px); }
+.card img { width: 100%; aspect-ratio: 16/9; object-fit: cover; background: #000; }
+.card h4 { padding: 12px; font-size: 0.95rem; color: var(--text-white); flex: 1; }
+.media-type-badge { position: absolute; top: 8px; left: 8px; background: rgba(142,68,173,0.9); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; color: #fff; }
+.add-music-badge { position: absolute; top: 8px; right: 8px; background: #2ecc71; color: #fff; padding: 4px 8px; font-size: 0.75rem; }
+.quick-edit-badge { position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.7); color: var(--theme-color); padding: 6px 8px; border-radius: 50%; font-size: 0.9rem; }
+.quick-edit-badge:hover { color: #fff; background: var(--theme-color); }
+.search-btn-group { display: flex; gap: 2px; padding: 0 8px 8px 8px; }
+.search-btn-group button { flex: 1; padding: 6px; font-size: 0.8rem; color: #fff; }
 
 /* ==========================================
-   MODAL (z-index 300 - Topo absoluto)
+   4. PLAYER
    ========================================== */
-.modal-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.85); z-index: 300;
-    display: flex; justify-content: center; align-items: center; padding: 20px;
-}
+.floating-player { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80vw; max-width: 1250px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 20px 60px rgba(0,0,0,0.85); z-index: 200; overflow: hidden; }
+.player-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 18px; background: var(--bg-sidebar); border-bottom: 1px solid var(--border-color); }
+.player-header h3 { font-size: 0.95rem; color: var(--text-white); }
+.player-controls-group { display: flex; align-items: center; gap: 12px; }
+.btn-player-action { background: transparent; color: var(--text-white); font-size: 1.05rem; padding: 6px 10px; }
+.btn-icon-close { background: transparent; color: #e74c3c; font-size: 1.3rem; }
+.player-content { position: relative; width: 100%; padding-top: 56.25%; background: #000; }
+.player-content #yt-player, .player-content #universal-player, .player-content #raw-player { position: absolute; top: 0; left: 0; width: 100% !important; height: 100% !important; border: none; }
 
 /* ==========================================
-   PLAYER (z-index 200)
+   5. TEMAS FLUTUANTES E RESPONSIVIDADE
    ========================================== */
-.floating-player { 
-    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
-    width: 80vw; max-width: 1250px; background: var(--bg-card); 
-    border: 1px solid var(--border-color); border-radius: 8px; z-index: 200; overflow: hidden;
-}
-
-/* ==========================================
-   SWITCHER DE TEMAS (Ícones Restabelecidos)
-   ========================================== */
-.theme-switcher-float { 
-    position: fixed; bottom: 20px; right: 20px; z-index: 99; 
-    background: #202024; padding: 10px; border-radius: 30px; display: flex; gap: 8px; 
-}
-.theme-btn-toggle { 
-    width: 35px; height: 35px; border-radius: 50%; 
-    display: flex; justify-content: center; align-items: center; 
-    color: #fff !important; font-size: 0.9rem; cursor: pointer; transition: transform 0.2s;
-}
+.theme-switcher-float { position: fixed; bottom: 20px; right: 20px; z-index: 999; background: #202024; border: 1px solid #29292e; padding: 10px; border-radius: 30px; display: flex; gap: 8px; align-items: center; }
+.theme-btn-toggle { width: 35px; height: 35px; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: #fff; font-size: 1rem; transition: transform 0.2s, background 0.2s; }
 .theme-btn-toggle:hover { transform: scale(1.15); }
 .btn-t-yt { background: #ff0000; }
 .btn-t-nf { background: #e50914; }
-.btn-t-ft { background: #00f0ff; color: #000 !important; }
-.btn-t-cl { background: #f1c40f; color: #000 !important; }
+.btn-t-ft { background: #00f0ff; color: #000; }
+.btn-t-cl { background: #f1c40f; color: #fff; }
+
+@media (max-width: 768px) {
+    .btn-mobile-only { display: block !important; }
+    .header-center { display: none !important; }
+    .floating-player { position: fixed !important; top: 60px !important; left: 0 !important; width: 100vw !important; border-radius: 0; z-index: 98; }
+    .theme-switcher-float { bottom: 10px; right: 10px; padding: 6px; gap: 4px; }
+    .theme-btn-toggle { width: 30px; height: 30px; font-size: 0.8rem; }
+}
 
 /* ==========================================
-   RESPONSIVIDADE (Corrigida)
+   CORREÇÃO DE MODAL E LAYOUT (SINTAXE)
    ========================================== */
-@media (max-width: 768px) {
-    .sidebar-panel { position: fixed; height: calc(100vh - 60px); transform: translateX(-100%); }
-    .sidebar-panel.open { transform: translateX(0); }
-    .floating-player { width: 100vw !important; height: auto !important; border-radius: 0; }
+#admin-modal {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.85); z-index: 999;
+    display: flex; justify-content: center; align-items: center;
 }
+#admin-modal.hidden { display: none !important; }

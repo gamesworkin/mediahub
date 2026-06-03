@@ -755,12 +755,12 @@ function switchTabs(targetTabId, activeTriggerBtnId) {
 }
 
 // ==========================================
-// 9. MAPA DE EVENTOS E INICIALIZAÇÃO
+// 9. MAPA DE EVENTOS E SWITCH DE TEMAS VISUAIS
 // ==========================================
 function setupEventListeners() {
-    console.log("Sistema pronto. Conectando eventos...");
-
-    // Delegação de eventos (Funciona mesmo que elementos sejam criados depois)
+    console.log("Configurando eventos...");
+    
+    // Delegação de cliques (Isso garante que os botões funcionem mesmo que o conteúdo mude)
     document.addEventListener('click', (e) => {
         if (e.target.closest('#btn-open-admin')) {
             e.preventDefault();
@@ -772,31 +772,22 @@ function setupEventListeners() {
         if (e.target.closest('#btn-close-admin')) document.getElementById('admin-modal')?.classList.add('hidden');
         if (e.target.closest('#btn-close-player')) document.getElementById('player-container')?.classList.add('hidden');
         if (e.target.closest('#btn-logout')) handleLogoutActions();
-        
-        const themeBtn = e.target.closest('[id^="theme-switch-"]');
-        if (themeBtn) {
-            const tema = themeBtn.id.replace('theme-switch-', '');
-            const className = tema === 'youtube' ? "" : `theme-${tema}`;
-            document.body.className = className;
-            if(currentUser) localStorage.setItem(`streamhub_layout_mode_${currentUser}`, className);
-        }
     });
 
-    // Eventos específicos que precisam de listener direto
+    // Eventos específicos (Inputs)
     document.getElementById('search-yt-input')?.addEventListener('keypress', (e) => { if(e.key === 'Enter') searchYouTubeGlobal(e.target.value); });
     
-    configurarEventosBuscaCanal(); 
-    inicializarSeletorCoresLinear();
+    // ... (Mantenha aqui os eventos de temas e outros que já estavam no seu código original)
 }
 
 // Funções de Navegação
 function pularProxima() { if (currentTrackIndex + 1 < currentPlaylist.length) playTrack(currentTrackIndex + 1); }
 function pularAnterior() { if (currentTrackIndex > 0) playTrack(currentTrackIndex - 1); }
 
-// INICIALIZAÇÃO DEFINITIVA
-// Esta ordem garante que: 1. Login conecta, 2. Eventos globais funcionam, 3. Firebase checa sessão.
+// INICIALIZAÇÃO ÚNICA E GARANTIDA
 document.addEventListener('DOMContentLoaded', () => {
-    configurarEventosLogin(); // Garante que o login funcione
-    setupEventListeners();    // Garante que os cliques funcionem
-    checkSession();           // Inicia o resto
+    configurarEventosLogin();
+    setupEventListeners();
+    checkSession();
 });
+

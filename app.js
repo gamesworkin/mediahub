@@ -765,12 +765,7 @@ function setupEventListeners() {
     document.getElementById('toggle-sidebar')?.addEventListener('click', (e) => { e.preventDefault(); handleToggleSidebar(); });
     
     // Botão ADMIN
-    document.getElementById('btn-open-admin').onclick = (e) => { 
-    e.preventDefault(); 
-    alert("Clique detectado!"); // <--- ADICIONE ISSO
-    const modal = document.getElementById('admin-modal');
-    if (modal) { modal.classList.remove('hidden'); switchTabs('add-tab', 'tab-trigger-add'); renderCrudManager(); }
-};
+    document.getElementById('btn-open-admin')) document.getElementById('btn-open-admin').onclick = (e) => { e.preventDefault(); if(document.getElementById('admin-modal')) document.getElementById('admin-modal').classList.remove('hidden'); switchTabs('add-tab', 'tab-trigger-add'); renderCrudManager(); };
 
     // BOTÕES DE NAVEGAÇÃO
     document.getElementById('btn-next-track')?.addEventListener('click', pularProxima);

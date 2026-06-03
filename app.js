@@ -481,124 +481,30 @@ function extractPlaylistId(url) { const reg = /[&?]list=([^#\&\?]+)/; const matc
 // 6. REPRODUÇÃO TRIPLA DO PLAYER
 // ==========================================
 function playTrack(index) {
-    if (index < 0 || index >= currentPlaylist.length) return;
-    
-    currentTrackIndex = index;
-    const track = currentPlaylist[index];
-    
-    // Atualiza título e exibe o player
-    const playerContainer = document.getElementById('player-container');
-    const titleEl = document.getElementById('current-track-title');
-    if (playerContainer) playerContainer.classList.remove('hidden');
-    if (titleEl) titleEl.innerText = track.título;
+    if(currentPlaylist.length === 0) return; currentTrackIndex = index; const track = currentPlaylist[index];
+    if (document.getElementById('player-container')) document.getElementById('player-container').classList.remove('hidden');
+    if (document.getElementById('current-track-title')) document.getElementById('current-track-title').innerText = track.título;
 
-    const ytPlayerEl = document.getElementById('yt-player');
-    const univPlayerEl = document.getElementById('universal-player');
-    const rawPlayerEl = document.getElementById('raw-player');
+    const ytPlayerEl = document.getElementById('yt-player'); const univPlayerEl = document.getElementById('universal-player'); const rawPlayerEl = document.getElementById('raw-player');
+    if (univPlayerEl) univPlayerEl.src = ""; if (rawPlayerEl) rawPlayerEl.src = "";
+    if (univPlayerEl) univPlayerEl.classList.add('hidden'); if (rawPlayerEl) rawPlayerEl.classList.add('hidden'); if (ytPlayerEl) ytPlayerEl.classList.remove('hidden');
+    if (rawPlayerEl) rawPlayerEl.pause(); const linkOriginal = track.link.trim(); const vId = extractYoutubeId(linkOriginal);
 
-    // Esconde todos inicialmente
-    [ytPlayerEl, univPlayerEl, rawPlayerEl].forEach(el => {
-        if (el) el.classList.add('hidden');
-    });
-
-    const linkOriginal = track.link.trim();
-    const vId = extractYoutubeId(linkOriginal);
-
-    if (vId) {
-        // Reprodução YouTube (API)
+    if(vId) {
         if (ytPlayerEl) ytPlayerEl.classList.remove('hidden');
-        if (!ytPlayer) {
-            ytPlayer = new YT.Player('yt-player', {
-                videoId: vId,
-                playerVars: { 'autoplay': 1, 'playsinline': 1 },
-                events: {
-                    'onStateChange': (e) => { if (e.data === 0) pularProxima(); }
-                }
-            });
-        } else {
-            ytPlayer.loadVideoById(vId);
-        }
-    } else if (linkOriginal.toLowerCase().match(/\.(mp4|mkv|webm)$/)) {
-        // Reprodução Vídeo Raw
-        if (rawPlayerEl) {
-            rawPlayerEl.classList.remove('hidden');
-            rawPlayerEl.src = linkOriginal;
-            rawPlayerEl.play();
-            rawPlayerEl.onended = () => pularProxima();
-        }
-    } else {
-        // Universal (Iframe geral)
-        if (univPlayerEl) {
-            univPlayerEl.classList.remove('hidden');
-            univPlayerEl.src = linkOriginal.includes("archive.org/details/") ? linkOriginal.replace("archive.org/details/", "archive.org/embed/") : linkOriginal;
-        }
-    }
-}
-
-function pularProxima() {
-    if (currentTrackIndex + 1 < currentPlaylist.length) {
-        playTrack(currentTrackIndex + 1);
-    } else {
-        console.log("Fim da playlist.");
-    }
-}
-
-function pularAnterior() {
-    if (currentTrackIndex > 0) {
-        playTrack(currentTrackIndex - 1);
-    }
+        if (!ytPlayer) { ytPlayer = new YT.Player('yt-player', { videoId: vId, playerVars: { 'autoplay': 1, 'playsinline': 1, 'enablejsapi': 1 }, events: { 'onStateChange': (e) => { if(e.data === 0 && currentTrackIndex + 1 < currentPlaylist.length) playTrack(currentTrackIndex + 1); } } }); } 
+        else { ytPlayer.loadVideoById(vId); }
+    } 
+    else if(linkOriginal.toLowerCase().endsWith('.mp4') || linkOriginal.toLowerCase().endsWith('.mkv') || linkOriginal.toLowerCase().includes('raw.githubusercontent')) {
+        if (rawPlayerEl) { rawPlayerEl.classList.remove('hidden'); rawPlayerEl.src = linkOriginal; rawPlayerEl.play(); rawPlayerEl.onended = () => { if(currentTrackIndex + 1 < currentPlaylist.length) playTrack(currentTrackIndex + 1); }; }
+    } 
+    else { if (univPlayerEl) { univPlayerEl.classList.remove('hidden'); univPlayerEl.src = linkOriginal.includes("archive.org/details/") ? linkOriginal.replace("archive.org/details/", "archive.org/embed/") : linkOriginal; } }
 }
 
 function extractYoutubeId(url) {
     if (!url) return null; const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|\/shorts\/)([^#\&\?]*).*/; const match = url.match(regExp);
     if (match && match[2].length === 11) return match[2]; if (url.trim().length === 11 && !url.includes('/') && !url.includes('.')) return url.trim(); return null;
 }
-
-function configurarVolume() {
-    const slider = document.getElementById('player-volume-slider');
-    const btnMute = document.getElementById('btn-mute-toggle');
-    
-    // Debug: Verifica se os elementos foram encontrados
-    console.log("Debug Slider:", slider);
-    console.log("Debug Botão Mute:", btnMute);
-    
-    if (!slider) {
-        console.error("ERRO: O elemento com ID 'player-volume-slider' não foi encontrado no seu HTML!");
-        return;
-    }
-
-    slider.addEventListener('input', (e) => {
-        console.log("Volume alterado para: " + e.target.value);
-        const val = e.target.value;
-        playerVolumeAnterior = val;
-
-        if (ytPlayer && typeof ytPlayer.setVolume === 'function') {
-            ytPlayer.setVolume(val);
-        }
-        const raw = document.getElementById('raw-player');
-        if (raw) raw.volume = val / 100;
-    });
-    
-    if (btnMute) {
-        btnMute.addEventListener('click', () => {
-            console.log("Botão Mute clicado!");
-            if (!playerEstaMutado) {
-                if (ytPlayer && ytPlayer.mute) ytPlayer.mute();
-                const raw = document.getElementById('raw-player');
-                if (raw) raw.muted = true;
-                btnMute.innerHTML = '<i class="fas fa-volume-mute"></i>';
-                playerEstaMutado = true;
-            } else {
-                if (ytPlayer && ytPlayer.unMute) ytPlayer.unMute();
-                const raw = document.getElementById('raw-player');
-                if (raw) raw.muted = false;
-                btnMute.innerHTML = '<i class="fas fa-volume-up"></i>';
-                playerEstaMutado = false;
-            }
-        });
-    }
-}
-
 
 // ==========================================
 // 7. ÁRVORE GERENCIAL SANFONA (CRUD COMPLETO REAL-TIME FIX)

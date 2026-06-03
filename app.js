@@ -406,11 +406,23 @@ function playTrack(index) {
 
     if(vId) {
         if (ytPlayerEl) ytPlayerEl.classList.remove('hidden');
-        if (!ytPlayer) { ytPlayer = new YT.Player('yt-player', { videoId: vId, playerVars: { 'autoplay': 1, 'playsinline': 1, 'enablejsapi': 1 }, events: { 'onStateChange': (e) => { if(e.data === 0 && currentTrackIndex + 1 < currentPlaylist.length) playTrack(currentTrackIndex + 1); } } }); } 
-        else { ytPlayer.loadVideoById(vId); }
+        if (!ytPlayer) { 
+            ytPlayer = new YT.Player('yt-player', { 
+                videoId: vId, 
+                playerVars: { 'autoplay': 1, 'playsinline': 1, 'enablejsapi': 1 }, 
+                events: { 
+                    'onReady': () => { aplicarVolume(); }, // Aplica volume assim que o YouTube carregar
+                    'onStateChange': (e) => { if(e.data === 0 && currentTrackIndex + 1 < currentPlaylist.length) playTrack(currentTrackIndex + 1); } 
+                } 
+            }); 
+        } 
+        else { 
+            ytPlayer.loadVideoById(vId); 
+            setTimeout(() => aplicarVolume(), 300); // Aguarda e aplica o volume
+        }
     } 
     else if(linkOriginal.toLowerCase().endsWith('.mp4') || linkOriginal.toLowerCase().endsWith('.mkv') || linkOriginal.toLowerCase().includes('raw.githubusercontent')) {
-        if (rawPlayerEl) { rawPlayerEl.classList.remove('hidden'); rawPlayerEl.src = linkOriginal; rawPlayerEl.play(); rawPlayerEl.onended = () => { if(currentTrackIndex + 1 < currentPlaylist.length) playTrack(currentTrackIndex + 1); }; }
+        if (rawPlayerEl) { rawPlayerEl.classList.remove('hidden'); rawPlayerEl.src = linkOriginal; rawPlayerEl.play(); aplicarVolume(); rawPlayerEl.onended = () => { if(currentTrackIndex + 1 < currentPlaylist.length) playTrack(currentTrackIndex + 1); }; }
     } 
     else { if (univPlayerEl) { univPlayerEl.classList.remove('hidden'); univPlayerEl.src = linkOriginal.includes("archive.org/details/") ? linkOriginal.replace("archive.org/details/", "archive.org/embed/") : linkOriginal; } }
 }
@@ -419,6 +431,32 @@ function extractYoutubeId(url) {
     if (!url || url.includes('videoseries')) return null; 
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|\/shorts\/)([^#\&\?]*).*/; const match = url.match(regExp);
     if (match && match[2].length === 11) return match[2]; if (url.trim().length === 11 && !url.includes('/') && !url.includes('.')) return url.trim(); return null;
+}
+
+// --- MOTOR DE VOLUME ---
+function aplicarVolume() {
+    const slider = document.getElementById('player-volume-slider');
+    const btnMute = document.getElementById('btn-mute-toggle');
+    if (!slider || !btnMute) return;
+
+    let vol = parseInt(slider.value);
+    let isMuted = btnMute.getAttribute('data-muted') === 'true';
+
+    // Atualiza o ícone do botão
+    btnMute.innerHTML = isMuted || vol === 0 ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
+
+    // Aplica no Player MP4 Nativo
+    const rawPlayer = document.getElementById('raw-player');
+    if (rawPlayer) {
+        rawPlayer.volume = vol / 100;
+        rawPlayer.muted = isMuted;
+    }
+
+    // Aplica no Player do YouTube
+    if (ytPlayer && typeof ytPlayer.setVolume === 'function') {
+        if (isMuted) ytPlayer.mute();
+        else { ytPlayer.unMute(); ytPlayer.setVolume(vol); }
+    }
 }
 
 function renderCrudManager() {
@@ -676,12 +714,18 @@ function setupEventListeners() {
             if(currentUser) { localStorage.removeItem(`streamhub_theme_${currentUser}`); let c = USERS_DATABASE[currentUser] ? USERS_DATABASE[currentUser].defaultColor : "#ff0000"; aplicarCorTema(c); posicionarSetaPelaCor(c); }
         }
 
-        // --- CONTROLES DO PLAYER ---
+                // --- CONTROLES DO PLAYER ---
         if (e.target.closest('#btn-next-track')) { if(currentTrackIndex + 1 < currentPlaylist.length) playTrack(currentTrackIndex + 1); }
         if (e.target.closest('#btn-prev-track')) { if(currentTrackIndex > 0) playTrack(currentTrackIndex - 1); }
         if (e.target.closest('#btn-close-player')) {
             if(ytPlayer?.stopVideo) ytPlayer.stopVideo(); document.getElementById('universal-player').src = ""; document.getElementById('raw-player').pause();
             document.getElementById('player-container')?.classList.add('hidden');
+        }
+        if (e.target.closest('#btn-mute-toggle')) {
+            const btnMute = e.target.closest('#btn-mute-toggle');
+            let isMuted = btnMute.getAttribute('data-muted') === 'true';
+            btnMute.setAttribute('data-muted', !isMuted); // Alterna estado
+            aplicarVolume();
         }
 
         // --- TEMAS VISUAIS ---
@@ -706,6 +750,16 @@ function setupEventListeners() {
             try { let p = JSON.parse(evt.target.result); await processarInjecaoDeDadosAcumulativa(Array.isArray(p) ? p : Object.values(p)); e.target.value = ""; } catch(err) { alert("Erro de arquivo."); }
         }; reader.readAsText(file);
     });
+
+    // Dispara a mudança de volume enquanto você arrasta a barra
+    document.addEventListener('input', (e) => {
+        if (e.target.id === 'player-volume-slider') {
+            const btnMute = document.getElementById('btn-mute-toggle');
+            if (btnMute) btnMute.setAttribute('data-muted', 'false'); // Tira o mute se mexer na barra
+            aplicarVolume();
+        }
+    });
+
 
     configurarEventosBuscaCanal();
     inicializarSeletorCoresLinear();

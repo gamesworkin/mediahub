@@ -847,24 +847,18 @@ function setupEventListeners() {
     }
     if (document.getElementById('btn-logout')) document.getElementById('btn-logout').onclick = (e) => { e.preventDefault(); handleLogoutActions(); };
     
-    // MAPEAMENTO REATIVO DOS BOTÕES SWITCH DE TEMAS E ACABAMENTOS
-    if (document.getElementById('theme-switch-youtube')) {
-        document.getElementById('theme-switch-youtube').onclick = () => {
-            document.body.className = ""; 
-            if(currentUser) localStorage.setItem(`streamhub_layout_mode_${currentUser}`, "");
-        };
-    }
-    if (document.getElementById('theme-switch-netflix')) {
-        document.getElementById('theme-switch-netflix').onclick = () => {
-            document.body.className = "theme-netflix";
-            if(currentUser) localStorage.setItem(`streamhub_layout_mode_${currentUser}`, "theme-netflix");
-        };
-    }
-    if (document.getElementById('theme-switch-futurista')) {
-        document.getElementById('theme-switch-futurista').onclick = () => {
-            document.body.className = "theme-futurista";
-            if(currentUser) localStorage.setItem(`streamhub_layout_mode_${currentUser}`, "theme-futurista");
-        };
+        // MAPEAMENTO REATIVO DOS BOTÕES SWITCH DE TEMAS E ACABAMENTOS
+    ['youtube', 'netflix', 'futurista', 'claro'].forEach(tema => {
+        const btn = document.getElementById(`theme-switch-${tema}`);
+        if (btn) {
+            btn.onclick = () => {
+                const className = tema === 'youtube' ? "" : `theme-${tema}`;
+                document.body.className = className;
+                if(currentUser) localStorage.setItem(`streamhub_layout_mode_${currentUser}`, className);
+            };
+        }
+    });
+
     }
 
     configurarEventosBuscaCanal(); inicializarSeletorCoresLinear();

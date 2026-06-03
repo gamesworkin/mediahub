@@ -771,37 +771,6 @@ function setupEventListeners() {
     if (document.getElementById('bc-root')) document.getElementById('bc-root').onclick = () => { currentView = 'categories'; selectedCategory=''; selectedSubcategory=''; renderMosaic(); };
     if (document.getElementById('bc-home')) document.getElementById('bc-home').onclick = () => { currentView = 'categories'; selectedCategory=''; selectedSubcategory=''; renderMosaic(); };
     if (document.getElementById('bc-category')) document.getElementById('bc-category').onclick = () => { currentView = 'subcategories'; selectedSubcategory=''; renderMosaic(); };
-
-    const btnFetchManual = document.getElementById('btn-fetch-manual');
-    if (btnFetchManual) {
-        btnFetchManual.onclick = async (e) => {
-            e.preventDefault(); const url = document.getElementById('manual-media-url').value.trim(); if(!url) return alert("Insira uma URL.");
-            btnFetchManual.innerText = "Buscando..."; const vId = extractYoutubeId(url);
-            try {
-                if (vId) {
-                    const res = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${vId}&key=${CONFIG.YT_API_KEY}`); const data = await res.json();
-                    if (data.items && data.items.length > 0) { const snip = data.items[0].snippet; document.getElementById('prev-title').value = snip.title; document.getElementById('prev-thumb').src = snip.thumbnails.medium ? snip.thumbnails.medium.url : snip.thumbnails.default.url; } 
-                    else { document.getElementById('prev-title').value = "Vídeo do YouTube"; document.getElementById('prev-thumb').src = "https://placehold.co/120x90?text=YouTube"; }
-                } else if(extractPlaylistId(url)) { document.getElementById('prev-title').value = "Playlist Completa do YouTube (Lote Ativado)"; document.getElementById('prev-thumb').src = "https://placehold.co/120x90?text=Playlist+YT"; } 
-                else { document.getElementById('prev-title').value = "Mídia Externa / Arquivo Local"; document.getElementById('prev-thumb').src = "https://placehold.co/120x90?text=Link+Bruto"; }
-            } catch(err) { document.getElementById('prev-title').value = "Link Capturado"; document.getElementById('prev-thumb').src = "https://placehold.co/120x90?text=Mídia"; } finally { btnFetchManual.innerText = "Capturar Dados"; }
-        };
-    }
-
-    if (document.getElementById('btn-save-media')) document.getElementById('btn-save-media').onclick = (e) => saveMediaToDatabase(e);
-        const btnAdmin = document.getElementById('btn-open-admin');
-    if (btnAdmin) {
-        btnAdmin.onclick = (e) => { 
-            e.preventDefault(); 
-            const modal = document.getElementById('admin-modal');
-            if (modal) {
-                modal.classList.remove('hidden'); 
-                switchTabs('add-tab', 'tab-trigger-add'); 
-                renderCrudManager(); 
-            }
-        };
-    }
-
     if (document.getElementById('btn-close-admin')) document.getElementById('btn-close-admin').onclick = (e) => { e.preventDefault(); if(document.getElementById('admin-modal')) document.getElementById('admin-modal').classList.add('hidden'); };
     if (document.getElementById('tab-trigger-manage')) document.getElementById('tab-trigger-manage').onclick = (e) => { e.preventDefault(); switchTabs('manage-tab', 'tab-trigger-manage'); renderCrudManager(); };
     if (document.getElementById('tab-trigger-add')) document.getElementById('tab-trigger-add').onclick = (e) => { e.preventDefault(); switchTabs('add-tab', 'tab-trigger-add'); };
@@ -875,16 +844,48 @@ function setupEventListeners() {
     inicializarSeletorCoresLinear();
 } // <--- Esta chave fecha a função setupEventListeners
 
-document.addEventListener('click', function(e) {
-    if (e.target && e.target.id === 'btn-open-admin' || e.target.closest('#btn-open-admin')) {
-        e.preventDefault();
-        const modal = document.getElementById('admin-modal');
-        if (modal) {
-            modal.classList.remove('hidden');
-            switchTabs('add-tab', 'tab-trigger-add');
-            renderCrudManager();
-        }
+function setupEventListeners() {
+    // Busca e Sidebar
+    if (document.getElementById('search-yt-input')) document.getElementById('search-yt-input').onkeypress = (e) => { if(e.key === 'Enter') searchYouTubeGlobal(e.target.value); };
+    if (document.getElementById('toggle-sidebar')) document.getElementById('toggle-sidebar').onclick = (e) => { e.preventDefault(); handleToggleSidebar(); };
+    
+    // Botão ADMIN - Agora com seletor direto e verificado
+    const btnAdmin = document.getElementById('btn-open-admin');
+    if (btnAdmin) {
+        btnAdmin.onclick = (e) => { 
+            e.preventDefault(); 
+            const modal = document.getElementById('admin-modal');
+            if (modal) {
+                modal.classList.remove('hidden'); 
+                switchTabs('add-tab', 'tab-trigger-add'); 
+                renderCrudManager(); 
+            }
+        };
     }
+
+    // Outros botões...
+    if (document.getElementById('btn-close-admin')) document.getElementById('btn-close-admin').onclick = (e) => { e.preventDefault(); document.getElementById('admin-modal').classList.add('hidden'); };
+    
+    // Temas
+    ['youtube', 'netflix', 'futurista', 'claro'].forEach(tema => {
+        const btn = document.getElementById(`theme-switch-${tema}`);
+        if (btn) {
+            btn.onclick = () => {
+                const className = tema === 'youtube' ? "" : `theme-${tema}`;
+                document.body.className = className;
+                if(currentUser) localStorage.setItem(`streamhub_layout_mode_${currentUser}`, className);
+            };
+        }
+    });
+
+    configurarEventosBuscaCanal(); 
+    inicializarSeletorCoresLinear();
+}
+
+// Inicialização total garantida pelo DOMContentLoaded
+document.addEventListener('DOMContentLoaded', () => {
+    configurarEventosLogin();
+    checkSession();
 });
 
 // Inicialização segura dos manipuladores nativos

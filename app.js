@@ -2,7 +2,7 @@
 // CONFIGURAÇÃO INICIAL E CREDENCIAIS DO FIREBASE
 // ==========================================
 const firebaseConfig = {
-    apiKey: "AIzaSyA3obnKmTrF4zH6pdV8ogqZ88r7uACy3BI", // Substitua pela sua API Key do Console do Firebase
+    apiKey: "AIzaSyA3obnKmTrF4zH6pdV8ogqZ88r7uACy3BI", 
     authDomain: "workin--music.firebaseapp.com",
     databaseURL: "https://workin--music-default-rtdb.firebaseio.com",
     projectId: "workin--music",
@@ -11,12 +11,10 @@ const firebaseConfig = {
     appId: "1:588256543173:web:eddf01b30628df90ca8bac"
 };
 
-// Inicializa o Firebase SDK com tratamento de redundância
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
 
-// Mapeamento Multi-Tenant por E-mail (Sem palavras-passe expostas no código)
 const USERS_DATABASE = {
     "diego@midias.com": { 
         defaultColor: "#ff0000",
@@ -30,13 +28,8 @@ const USERS_DATABASE = {
     },
 };
 
-// Variáveis de Configuração Ativa
-let CONFIG = {
-    YT_API_KEY: "",
-    FIREBASE_URL: ""
-};
+let CONFIG = { YT_API_KEY: "", FIREBASE_URL: "" };
 
-// Estado Global da Aplicação
 let currentUser = "";
 let database = [];
 let canaisDinamicos = {};
@@ -50,7 +43,6 @@ let lastYtSearchResults = [];
 let activeEditingIndex = null;
 let canalSelecionadoProvisorio = null;
 
-// Estados de Expansão Preservados para Tempo Real
 let expandedCrudCats = {};
 let expandedCrudSubs = {};
 
@@ -69,9 +61,6 @@ function obterUrlCanalIndividual(nodeName) {
     return `${urlObjeto.origin}/canais_dinamicos/${nodeName}.json`;
 }
 
-// ==========================================
-// MOTOR DE CORES DO TEMA DO UTILIZADOR
-// ==========================================
 function aplicarCorTema(hexColor) {
     document.documentElement.style.setProperty('--theme-color', hexColor);
     let num = parseInt(hexColor.replace("#",""), 16);
@@ -96,20 +85,11 @@ function carregarTemaDoUsuarioLogado(usuario) {
         let corPadrao = USERS_DATABASE[usuario] ? USERS_DATABASE[usuario].defaultColor : "#ff0000";
         aplicarCorTema(corPadrao); posicionarSetaPelaCor(corPadrao);
     }
-    
     let visualSalvo = localStorage.getItem(`streamhub_layout_mode_${usuario}`);
-    if(visualSalvo) {
-        document.body.className = visualSalvo;
-    } else {
-        document.body.className = ""; 
-    }
+    if(visualSalvo) { document.body.className = visualSalvo; } else { document.body.className = ""; }
 }
 
-// ==========================================
-// 1. AUTENTICAÇÃO ATRAVÉS DO FIREBASE AUTHENTICATION SDK
-// ==========================================
 function checkSession() {
-    // Monitoriza o estado de autenticação em tempo real nativamente pelo SDK
     firebase.auth().onAuthStateChanged((user) => {
         if (user && user.email) {
             const emailLogado = user.email.toLowerCase();
@@ -125,7 +105,6 @@ function checkSession() {
                 return;
             }
         }
-        // Se não houver sessão ativa ou se o e-mail não estiver na lista de tenants
         limparInterfaceLocal();
     });
 }
@@ -135,58 +114,23 @@ function configurarEventosLogin() {
     const inputPass = document.getElementById('login-pass');
     const btnLogin = document.getElementById('btn-login');
 
-    if (inputUser) {
-        inputUser.onkeydown = null;
-        inputUser.onkeydown = (e) => {
-            if (e.key === 'Enter') { 
-                e.preventDefault(); 
-                if (inputPass) inputPass.focus(); 
-            }
-        };
-    }
-
-    if (inputPass) {
-        inputPass.onkeydown = null;
-        inputPass.onkeydown = (e) => {
-            if (e.key === 'Enter') { 
-                e.preventDefault(); 
-                handleLogin(); 
-            }
-        };
-    }
-
-    if (btnLogin) {
-        btnLogin.onclick = null;
-        btnLogin.onclick = (e) => { 
-            e.preventDefault(); 
-            handleLogin(); 
-        };
-    }
+    if (inputUser) { inputUser.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); if (inputPass) inputPass.focus(); } }; }
+    if (inputPass) { inputPass.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); handleLogin(); } }; }
+    if (btnLogin) { btnLogin.onclick = (e) => { e.preventDefault(); handleLogin(); }; }
 }
 
 function handleLogin() {
     const elUser = document.getElementById('login-user');
     const elPass = document.getElementById('login-pass');
     if(!elUser || !elPass) return;
-
     const inputEmail = elUser.value.trim().toLowerCase();
     const inputPass = elPass.value.trim();
-
-    if (!inputEmail || !inputPass) {
-        alert("Preencha todos os campos de credenciais!");
-        return;
-    }
+    if (!inputEmail || !inputPass) return alert("Preencha todos os campos!");
+    if (!USERS_DATABASE[inputEmail]) return alert("Este utilizador não possui perfil configurado!");
     
-    // Filtro Tenant preventivo antes de chamar a API
-    if (!USERS_DATABASE[inputEmail]) {
-        alert("Este utilizador não possui um perfil configurado neste painel!");
-        return;
-    }
-
     const btnLogin = document.getElementById('btn-login');
     btnLogin.innerText = "Autenticando..."; btnLogin.disabled = true;
 
-    // Chamada oficial criptografada do Firebase Auth
     firebase.auth().signInWithEmailAndPassword(inputEmail, inputPass)
         .catch((error) => {
             alert("Erro na Autenticação: " + error.message);
@@ -195,10 +139,7 @@ function handleLogin() {
 }
 
 function handleLogoutActions() {
-    // Desconecta do Firebase de forma síncrona com o servidor
-    firebase.auth().signOut().then(() => {
-        limparInterfaceLocal();
-    });
+    firebase.auth().signOut().then(() => { limparInterfaceLocal(); });
 }
 
 function limparInterfaceLocal() {
@@ -217,9 +158,6 @@ function limparInterfaceLocal() {
     if (document.getElementById('login-screen')) document.getElementById('login-screen').classList.remove('hidden');
 }
 
-// ==========================================
-// 2. INICIALIZAÇÃO E CARGA MISTA DO BANCO
-// ==========================================
 async function initApp() { await carregarCanaisDinamicos(); await recarregarDadosDoBanco(); }
 
 async function recarregarDadosDoBanco() {
@@ -245,9 +183,7 @@ function alimentarSeletorCategoriasCanais() {
     if(categories.length === 0) { select.innerHTML = `<option value="">Nenhuma categoria encontrada.</option>`; return; }
     categories.forEach(cat => { const opt = document.createElement("option"); opt.value = cat; opt.innerText = cat; select.appendChild(opt); });
 }
-// ==========================================
-// 3. RENDERIZAÇÃO DO MOSAICO
-// ==========================================
+
 function renderMosaic() {
     const grid = document.getElementById('mosaic-grid'); if (!grid) return; grid.innerHTML = '';
     const bcCat = document.getElementById('bc-category'); const bcSub = document.getElementById('bc-subcategory'); const bcSrc = document.getElementById('bc-search');
@@ -323,9 +259,6 @@ function createCard(title, imgSrc, showAddButton = false, isPlaylist = false, cl
     return card;
 }
 
-// ==========================================
-// 4. API DE CANAIS DINÂMICOS - ORDEM CRONOLÓGICA INVERTIDA
-// ==========================================
 async function buscarVideosRecentesDoCanal(playlistId) {
     const grid = document.getElementById('mosaic-grid'); if (grid) grid.innerHTML = '<h3>Atualizando vídeos recentes do canal via API...</h3>';
     const url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=15&playlistId=${playlistId}&key=${CONFIG.YT_API_KEY}`;
@@ -346,15 +279,17 @@ async function buscarVideosRecentesDoCanal(playlistId) {
     } catch (e) { if (grid) grid.innerHTML = '<h3>Erro ao carregar feeds do canal.</h3>'; }
 }
 
+// ==========================================
+// CANAIS DINÂMICOS - AGORA COM SCROLL DE 10 RESULTADOS
+// ==========================================
 function configurarEventosBuscaCanal() {
     const input = document.getElementById("search-channel-input");
     const btnSearchChan = document.getElementById("btn-search-channel");
-    const btnSaveChanLink = document.getElementById("btn-save-channel-link");
     const scrollContainer = document.getElementById("channels-scroll-container");
 
     const executarBusca = async (e) => {
         if(e) e.preventDefault();
-        const termo = input.value.trim();
+        const termo = input?.value.trim();
         if(!termo) return alert("Digite o nome do canal.");
         
         scrollContainer.innerHTML = '<h3>Buscando...</h3>';
@@ -388,28 +323,10 @@ function configurarEventosBuscaCanal() {
         } catch(err) { scrollContainer.innerHTML = '<p>Erro na API.</p>'; }
     };
 
-    if (input) input.onkeypress = (e) => { if(e.key === 'Enter') executarBusca(); };
+    if (input) input.onkeypress = (e) => { if(e.key === 'Enter') executarBusca(e); };
     if (btnSearchChan) btnSearchChan.onclick = executarBusca;
-
-    if (btnSaveChanLink) {
-        btnSaveChanLink.onclick = async (e) => {
-            e.preventDefault(); 
-            const catDestino = document.getElementById("channel-target-category").value; 
-            if(!canalSelecionadoProvisorio || !catDestino) return alert("Selecione canal e categoria.");
-            try {
-                const payload = { channelId: canalSelecionadoProvisorio.channelId, uploadsPlaylistId: canalSelecionadoProvisorio.channelId.replace(/^UC/, "UU"), title: canalSelecionadoProvisorio.title, thumb: canalSelecionadoProvisorio.thumb };
-                const nodeName = btoa(unescape(encodeURIComponent(catDestino))).replace(/=/g, "");
-                await fetch(obterUrlCanalIndividual(nodeName), { method: "PUT", body: JSON.stringify(payload) });
-                alert("Canal vinculado!"); document.getElementById("channel-preview").style.display = "none"; input.value = "";
-                canalSelecionadoProvisorio = null; initApp();
-            } catch(err) { alert("Erro ao salvar."); }
-        };
-    }
 }
 
-// ==========================================
-// 5. INTERFACE DA SIDEBAR E FILTROS
-// ==========================================
 function renderSidebar() {
     const tree = document.getElementById('sidebar-tree'); if (!tree) return; tree.innerHTML = '';
     const categories = [...new Set(database.map(item => item.categoria))];
@@ -477,9 +394,6 @@ function openAdminWithTrack(item) {
 
 function extractPlaylistId(url) { const reg = /[&?]list=([^#\&\?]+)/; const match = url.match(reg); return match ? match[1] : null; }
 
-// ==========================================
-// 6. REPRODUÇÃO TRIPLA DO PLAYER
-// ==========================================
 function playTrack(index) {
     if(currentPlaylist.length === 0) return; currentTrackIndex = index; const track = currentPlaylist[index];
     if (document.getElementById('player-container')) document.getElementById('player-container').classList.remove('hidden');
@@ -506,9 +420,6 @@ function extractYoutubeId(url) {
     if (match && match[2].length === 11) return match[2]; if (url.trim().length === 11 && !url.includes('/') && !url.includes('.')) return url.trim(); return null;
 }
 
-// ==========================================
-// 7. ÁRVORE GERENCIAL SANFONA (CRUD COMPLETO REAL-TIME FIX)
-// ==========================================
 function renderCrudManager() {
     const listContainer = document.getElementById('crud-tree-list'); if (!listContainer) return; listContainer.innerHTML = '';
     const categories = [...new Set(database.map(item => item.categoria))];
@@ -563,9 +474,6 @@ function createCrudRow(title, type, onEdit, onDel, onExp) {
     row.querySelector('.btn-del').onclick = (e) => { e.stopPropagation(); onDel(); }; row.querySelector('.btn-exp').onclick = (e) => { e.stopPropagation(); onExp(); }; return row;
 }
 
-// ==========================================
-// 8. PERSISTÊNCIA INTEGRAL EM LOTE E ATUALIZAÇÃO SÍNCRONA
-// ==========================================
 function openAdvancedEditModal(index) {
     activeEditingIndex = index; const item = database[index];
     document.getElementById('edit-field-title').value = item.título || ""; document.getElementById('edit-field-link').value = item.link || "";
@@ -600,7 +508,7 @@ async function saveMediaToDatabase(e) {
 
     try {
         if(pId) {
-            btnSave.innerText = "Desmembrando Playlist no Firebase..."; btnSave.disabled = true;
+            btnSave.innerText = "Processando..."; btnSave.disabled = true;
             let urlApi = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId=${pId}&key=${CONFIG.YT_API_KEY}`;
             let res = await fetch(urlApi); let data = await res.json();
             if(data.error) throw new Error(data.error.message); if(!data.items || data.items.length === 0) throw new Error("Playlist vazia.");
@@ -611,16 +519,16 @@ async function saveMediaToDatabase(e) {
                 database.push({ título, link: linkVideo, capa, categoria, subcategoria });
             }
             await empurrarBancoIntegralParaServidor();
-            alert(`Sucesso! Foram importados ${data.items.length} vídeos da playlist.`);
+            alert(`Sucesso! Foram importados ${data.items.length} vídeos.`);
         } else {
             const título = document.getElementById('prev-title').value.trim() || "Nova Mídia"; 
             const capa = document.getElementById('prev-thumb').src;
             database.push({ título, link: url, capa, categoria, subcategoria });
             await empurrarBancoIntegralParaServidor();
-            alert("Vídeo único salvo com sucesso!");
+            alert("Vídeo salvo!");
         }
         document.getElementById('manual-media-url').value = ""; 
-        if (document.getElementById('admin-modal')) document.getElementById('admin-modal').classList.add('hidden');
+        document.getElementById('admin-modal')?.classList.add('hidden');
         await recarregarDadosDoBanco();
     } catch (err) { alert("Erro: " + err.message); } finally { btnSave.innerText = "Salvar no meu Firebase"; btnSave.disabled = false; }
 }
@@ -642,18 +550,8 @@ async function processarInjecaoDeDadosAcumulativa(novosItens) {
         await empurrarBancoIntegralParaServidor();
         await recarregarDadosDoBanco(); 
         renderCrudManager();
-        alert(`Importação concluída! O seu banco agora possui um total de ${database.length} mídias.`);
+        alert(`Importação concluída! Total de mídias: ${database.length}`);
     } catch(e) { alert("Falha na mesclagem de dados."); }
-}
-
-async function importarCodigoJSON() {
-    const campoTexto = document.getElementById('json-input-field'); if (!campoTexto || !campoTexto.value.trim()) return alert("Cole o código.");
-    try {
-        let parsed = JSON.parse(campoTexto.value.trim()); let loteValidado = [];
-        if (Array.isArray(parsed)) loteValidado = parsed; else if (typeof parsed === 'object') Object.keys(parsed).forEach(k => { if(parsed[k]) loteValidado.push(parsed[k]); });
-        await processarInjecaoDeDadosAcumulativa(loteValidado);
-        campoTexto.value = "";
-    } catch (err) { alert("Erro de sintaxe no código colado: " + err.message); }
 }
 
 async function empurrarBancoIntegralParaServidor() {
@@ -662,58 +560,11 @@ async function empurrarBancoIntegralParaServidor() {
     if (!resposta.ok) throw new Error("Erro na gravação remota do banco.");
 }
 
-async function deletarMidiaUnica(indexNoBanco) {
-    try {
-        database.splice(indexNoBanco, 1);
-        await empurrarBancoIntegralParaServidor();
-        await recarregarDadosDoBanco(); 
-        renderCrudManager();
-    } catch(e) { alert("Erro ao excluir mídia."); }
-}
-
-async function deletarSubcategoria(cat, sub) {
-    try {
-        database = database.filter(item => !(item.categoria === cat && item.subcategoria === sub));
-        await empurrarBancoIntegralParaServidor();
-        await recarregarDadosDoBanco(); 
-        renderCrudManager();
-    } catch(e) { alert("Erro ao excluir subcategoria."); }
-}
-
-async function deletarCategoriaCompleta(cat) {
-    try {
-        database = database.filter(item => item.categoria !== cat);
-        await empurrarBancoIntegralParaServidor();
-        await fetch(obterUrlCanalIndividual(btoa(unescape(encodeURIComponent(cat))).replace(/=/g, "")), { method: 'DELETE' });
-        
-        currentView = 'categories'; selectedCategory = ''; selectedSubcategory = '';
-        await recarregarDadosDoBanco(); 
-        renderCrudManager();
-    } catch(e) { alert("Erro ao excluir categoria."); }
-}
-
-async function renomearCategoriaCompleta(antiga, nova) {
-    try {
-        database.forEach(item => { if(item.categoria === antiga) item.categoria = nova; });
-        await empurrarBancoIntegralParaServidor();
-        const oldNodeName = btoa(unescape(encodeURIComponent(antiga))).replace(/=/g, "");
-        if (canaisDinamicos[oldNodeName]) {
-            const newNodeName = btoa(unescape(encodeURIComponent(nova))).replace(/=/g, "");
-            await fetch(obterUrlCanalIndividual(newNodeName), { method: "PUT", body: JSON.stringify(canaisDinamicos[oldNodeName]) }); await fetch(obterUrlCanalIndividual(oldNodeName), { method: "DELETE" });
-        }
-        await recarregarDadosDoBanco(); 
-        renderCrudManager();
-    } catch(e) { alert("Erro."); }
-}
-
-async function renomearSubcategoriaCompleta(cat, antigaSub, novaSub) {
-    try {
-        database.forEach(item => { if(item.categoria === cat && item.subcategoria === antigaSub) item.subcategoria = novaSub; });
-        await empurrarBancoIntegralParaServidor();
-        await recarregarDadosDoBanco(); 
-        renderCrudManager();
-    } catch(e) { alert("Erro."); }
-}
+async function deletarMidiaUnica(indexNoBanco) { try { database.splice(indexNoBanco, 1); await empurrarBancoIntegralParaServidor(); await recarregarDadosDoBanco(); renderCrudManager(); } catch(e){} }
+async function deletarSubcategoria(cat, sub) { try { database = database.filter(item => !(item.categoria === cat && item.subcategoria === sub)); await empurrarBancoIntegralParaServidor(); await recarregarDadosDoBanco(); renderCrudManager(); } catch(e){} }
+async function deletarCategoriaCompleta(cat) { try { database = database.filter(item => item.categoria !== cat); await empurrarBancoIntegralParaServidor(); await fetch(obterUrlCanalIndividual(btoa(unescape(encodeURIComponent(cat))).replace(/=/g, "")), { method: 'DELETE' }); currentView = 'categories'; selectedCategory = ''; selectedSubcategory = ''; await recarregarDadosDoBanco(); renderCrudManager(); } catch(e){} }
+async function renomearCategoriaCompleta(antiga, nova) { try { database.forEach(item => { if(item.categoria === antiga) item.categoria = nova; }); await empurrarBancoIntegralParaServidor(); const oldNodeName = btoa(unescape(encodeURIComponent(antiga))).replace(/=/g, ""); if (canaisDinamicos[oldNodeName]) { const newNodeName = btoa(unescape(encodeURIComponent(nova))).replace(/=/g, ""); await fetch(obterUrlCanalIndividual(newNodeName), { method: "PUT", body: JSON.stringify(canaisDinamicos[oldNodeName]) }); await fetch(obterUrlCanalIndividual(oldNodeName), { method: "DELETE" }); } await recarregarDadosDoBanco(); renderCrudManager(); } catch(e){} }
+async function renomearSubcategoriaCompleta(cat, antigaSub, novaSub) { try { database.forEach(item => { if(item.categoria === cat && item.subcategoria === antigaSub) item.subcategoria = novaSub; }); await empurrarBancoIntegralParaServidor(); await recarregarDadosDoBanco(); renderCrudManager(); } catch(e){} }
 
 function downloadJSON(obj, filename) {
     const prepararObjeto = Array.isArray(obj) ? obj.map(({idFirebase, ...r}) => r) : obj;
@@ -749,45 +600,119 @@ function handleToggleSidebar() {
 }
 
 function switchTabs(targetTabId, activeTriggerBtnId) {
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
-    const triggerBtn = document.getElementById(activeTriggerBtnId); const targetTab = document.getElementById(targetTabId);
-    if (triggerBtn) triggerBtn.classList.add('active'); if (targetTab) targetTab.classList.remove('hidden');
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); 
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+    const triggerBtn = document.getElementById(activeTriggerBtnId); 
+    const targetTab = document.getElementById(targetTabId);
+    if (triggerBtn) triggerBtn.classList.add('active'); 
+    if (targetTab) targetTab.classList.remove('hidden');
 }
 
 // ==========================================
-// 9. MAPA DE EVENTOS E SWITCH DE TEMAS VISUAIS
+// DELEGAÇÃO GLOBAL DE EVENTOS (À PROVA DE FALHAS)
 // ==========================================
 function setupEventListeners() {
-    console.log("Configurando eventos...");
-    
-    // Delegação de cliques (Isso garante que os botões funcionem mesmo que o conteúdo mude)
-    document.addEventListener('click', (e) => {
-        if (e.target.closest('#btn-open-admin')) {
-            e.preventDefault();
-            const modal = document.getElementById('admin-modal');
-            if (modal) { modal.classList.remove('hidden'); switchTabs('add-tab', 'tab-trigger-add'); renderCrudManager(); }
-        }
-        if (e.target.closest('#btn-next-track')) pularProxima();
-        if (e.target.closest('#btn-prev-track')) pularAnterior();
-        if (e.target.closest('#btn-close-admin')) document.getElementById('admin-modal')?.classList.add('hidden');
-        if (e.target.closest('#btn-close-player')) document.getElementById('player-container')?.classList.add('hidden');
+    console.log("Configurando Delegação de Eventos...");
+
+    document.addEventListener('click', async (e) => {
+        // --- NAVEGAÇÃO SUPERIOR ---
+        if (e.target.closest('#toggle-sidebar')) handleToggleSidebar();
+        if (e.target.closest('#bc-root') || e.target.closest('#bc-home')) { currentView = 'categories'; selectedCategory=''; selectedSubcategory=''; renderMosaic(); }
+        if (e.target.closest('#bc-category')) { currentView = 'subcategories'; selectedSubcategory=''; renderMosaic(); }
         if (e.target.closest('#btn-logout')) handleLogoutActions();
+        if (e.target.closest('#btn-toggle-search-mobile')) {
+            const row = document.getElementById('mobile-search-row');
+            if(row) { row.classList.toggle('hidden'); if(!row.classList.contains('hidden')) document.getElementById('search-yt-input-mobile').focus(); }
+        }
+
+        // --- ABAS E MODAL ADMIN ---
+        if (e.target.closest('#btn-open-admin')) { 
+            document.getElementById('admin-modal')?.classList.remove('hidden'); 
+            switchTabs('add-tab', 'tab-trigger-add'); renderCrudManager(); 
+        }
+        if (e.target.closest('#btn-close-admin')) document.getElementById('admin-modal')?.classList.add('hidden');
+        
+        // Clicar nas abas
+        if (e.target.closest('#tab-trigger-add')) switchTabs('add-tab', 'tab-trigger-add');
+        if (e.target.closest('#tab-trigger-channel')) switchTabs('channel-tab', 'tab-trigger-channel');
+        if (e.target.closest('#tab-trigger-manage')) { switchTabs('manage-tab', 'tab-trigger-manage'); renderCrudManager(); }
+
+        // Botões de ação dentro do Admin
+        if (e.target.closest('#btn-save-media')) saveMediaToDatabase(e);
+        if (e.target.closest('#btn-submit-edit-media')) saveAdvancedEditChanges(e);
+        if (e.target.closest('#btn-cancel-edit-media') || e.target.closest('#btn-cancel-edit-media-2')) {
+            document.getElementById('edit-media-modal')?.classList.add('hidden');
+        }
+        if (e.target.closest('#btn-save-channel-link')) {
+            const catDestino = document.getElementById("channel-target-category")?.value; 
+            if(!canalSelecionadoProvisorio || !catDestino) return alert("Selecione um canal e uma categoria.");
+            try {
+                const payload = { channelId: canalSelecionadoProvisorio.channelId, uploadsPlaylistId: canalSelecionadoProvisorio.channelId.replace(/^UC/, "UU"), title: canalSelecionadoProvisorio.title, thumb: canalSelecionadoProvisorio.thumb };
+                const nodeName = btoa(unescape(encodeURIComponent(catDestino))).replace(/=/g, "");
+                await fetch(obterUrlCanalIndividual(nodeName), { method: "PUT", body: JSON.stringify(payload) });
+                alert("Canal vinculado!"); document.getElementById("channel-preview").style.display = "none"; document.getElementById('search-channel-input').value = "";
+                canalSelecionadoProvisorio = null; initApp();
+            } catch(err) { alert("Erro ao salvar canal."); }
+        }
+
+        if (e.target.closest('#btn-fetch-manual')) {
+            const url = document.getElementById('manual-media-url').value.trim(); if(!url) return alert("Insira uma URL.");
+            const btn = e.target.closest('#btn-fetch-manual'); btn.innerText = "Buscando..."; const vId = extractYoutubeId(url);
+            try {
+                if (vId) {
+                    const res = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${vId}&key=${CONFIG.YT_API_KEY}`); const data = await res.json();
+                    if (data.items && data.items.length > 0) { const snip = data.items[0].snippet; document.getElementById('prev-title').value = snip.title; document.getElementById('prev-thumb').src = snip.thumbnails.medium ? snip.thumbnails.medium.url : snip.thumbnails.default.url; } 
+                }
+            } catch(err) {} finally { btn.innerText = "Capturar Dados"; }
+        }
+
+        if (e.target.closest('#btn-export-all-json')) { if (database.length > 0) downloadJSON(database, "backup_completo_streamhub"); else alert("Banco vazio!"); }
+        if (e.target.closest('#btn-submit-json-code')) {
+            const val = document.getElementById('json-input-field')?.value.trim(); if(!val) return alert("Cole o código JSON");
+            try { let p = JSON.parse(val); await processarInjecaoDeDadosAcumulativa(Array.isArray(p) ? p : Object.values(p)); document.getElementById('json-input-field').value = ""; } catch(err) { alert("JSON inválido."); }
+        }
+        if (e.target.closest('#btn-reset-theme')) {
+            if(currentUser) { localStorage.removeItem(`streamhub_theme_${currentUser}`); let c = USERS_DATABASE[currentUser] ? USERS_DATABASE[currentUser].defaultColor : "#ff0000"; aplicarCorTema(c); posicionarSetaPelaCor(c); }
+        }
+
+        // --- CONTROLES DO PLAYER ---
+        if (e.target.closest('#btn-next-track')) { if(currentTrackIndex + 1 < currentPlaylist.length) playTrack(currentTrackIndex + 1); }
+        if (e.target.closest('#btn-prev-track')) { if(currentTrackIndex > 0) playTrack(currentTrackIndex - 1); }
+        if (e.target.closest('#btn-close-player')) {
+            if(ytPlayer?.stopVideo) ytPlayer.stopVideo(); document.getElementById('universal-player').src = ""; document.getElementById('raw-player').pause();
+            document.getElementById('player-container')?.classList.add('hidden');
+        }
+
+        // --- TEMAS VISUAIS ---
+        const themeBtn = e.target.closest('[id^="theme-switch-"]');
+        if (themeBtn) {
+            const tema = themeBtn.id.replace('theme-switch-', '');
+            const className = tema === 'youtube' ? "" : `theme-${tema}`;
+            document.body.className = className;
+            if(currentUser) localStorage.setItem(`streamhub_layout_mode_${currentUser}`, className);
+        }
     });
 
-    // Eventos específicos (Inputs)
+    // Filtros e Inputs (Eventos de teclado)
     document.getElementById('search-yt-input')?.addEventListener('keypress', (e) => { if(e.key === 'Enter') searchYouTubeGlobal(e.target.value); });
-    
-    // ... (Mantenha aqui os eventos de temas e outros que já estavam no seu código original)
+    document.getElementById('search-yt-input-mobile')?.addEventListener('keypress', (e) => { if(e.key === 'Enter') searchYouTubeGlobal(e.target.value); });
+    document.getElementById('search-internal-input')?.addEventListener('input', (e) => filterInternalDatabase(e.target.value));
+
+    // Importar via arquivo JSON
+    document.getElementById('file-import-json')?.addEventListener('change', (e) => {
+        const file = e.target.files[0]; if (!file) return; const reader = new FileReader();
+        reader.onload = async (evt) => {
+            try { let p = JSON.parse(evt.target.result); await processarInjecaoDeDadosAcumulativa(Array.isArray(p) ? p : Object.values(p)); e.target.value = ""; } catch(err) { alert("Erro de arquivo."); }
+        }; reader.readAsText(file);
+    });
+
+    configurarEventosBuscaCanal();
+    inicializarSeletorCoresLinear();
 }
 
-// Funções de Navegação
-function pularProxima() { if (currentTrackIndex + 1 < currentPlaylist.length) playTrack(currentTrackIndex + 1); }
-function pularAnterior() { if (currentTrackIndex > 0) playTrack(currentTrackIndex - 1); }
-
-// INICIALIZAÇÃO ÚNICA E GARANTIDA
+// INICIALIZAÇÃO
 document.addEventListener('DOMContentLoaded', () => {
     configurarEventosLogin();
     setupEventListeners();
     checkSession();
 });
-

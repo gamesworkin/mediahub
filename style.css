@@ -201,4 +201,15 @@ button:active { transform: scale(0.98); }
 #admin-modal.hidden {
     display: none !important;
 }
+/* Garante que botões fiquem acima de tudo e recebam o clique */
+.btn-admin, .btn-logout, .btn-icon, .card, .quick-edit-badge {
+    position: relative !important;
+    z-index: 9999 !important;
+    pointer-events: auto !important;
+}
+
+/* Se o container pai tiver um z-index menor, ele bloqueia os filhos */
+.app-header {
+    z-index: 1000 !important;
+}
 

@@ -179,4 +179,10 @@ button:active { transform: scale(0.98); }
     .theme-switcher-float { bottom: 10px; right: 10px; padding: 6px; gap: 4px; }
     .theme-btn-toggle { width: 30px; height: 30px; font-size: 0.8rem; }
 }
+#btn-open-admin {
+    position: relative;
+    z-index: 10000 !important; /* Força o botão para a camada mais alta */
+    cursor: pointer !important;
+    pointer-events: auto !important;
+}
 

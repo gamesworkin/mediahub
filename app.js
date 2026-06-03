@@ -758,6 +758,7 @@ function switchTabs(targetTabId, activeTriggerBtnId) {
 // 9. MAPA DE EVENTOS E SWITCH DE TEMAS VISUAIS
 // ==========================================
 function setupEventListeners() {
+    // Busca e Navegação
     if (document.getElementById('search-yt-input')) document.getElementById('search-yt-input').onkeypress = (e) => { if(e.key === 'Enter') searchYouTubeGlobal(e.target.value); };
     if (document.getElementById('search-yt-input-mobile')) { document.getElementById('search-yt-input-mobile').onkeypress = (e) => { if(e.key === 'Enter') searchYouTubeGlobal(e.target.value); }; }
     if (document.getElementById('btn-toggle-search-mobile')) {
@@ -771,85 +772,8 @@ function setupEventListeners() {
     if (document.getElementById('bc-root')) document.getElementById('bc-root').onclick = () => { currentView = 'categories'; selectedCategory=''; selectedSubcategory=''; renderMosaic(); };
     if (document.getElementById('bc-home')) document.getElementById('bc-home').onclick = () => { currentView = 'categories'; selectedCategory=''; selectedSubcategory=''; renderMosaic(); };
     if (document.getElementById('bc-category')) document.getElementById('bc-category').onclick = () => { currentView = 'subcategories'; selectedSubcategory=''; renderMosaic(); };
-    if (document.getElementById('btn-close-admin')) document.getElementById('btn-close-admin').onclick = (e) => { e.preventDefault(); if(document.getElementById('admin-modal')) document.getElementById('admin-modal').classList.add('hidden'); };
-    if (document.getElementById('tab-trigger-manage')) document.getElementById('tab-trigger-manage').onclick = (e) => { e.preventDefault(); switchTabs('manage-tab', 'tab-trigger-manage'); renderCrudManager(); };
-    if (document.getElementById('tab-trigger-add')) document.getElementById('tab-trigger-add').onclick = (e) => { e.preventDefault(); switchTabs('add-tab', 'tab-trigger-add'); };
-    if (document.getElementById('tab-trigger-channel')) document.getElementById('tab-trigger-channel').onclick = (e) => { e.preventDefault(); switchTabs('channel-tab', 'tab-trigger-channel'); };
-    if (document.getElementById('btn-submit-edit-media')) document.getElementById('btn-submit-edit-media').onclick = (e) => saveAdvancedEditChanges(e);
-    if (document.getElementById('btn-cancel-edit-media')) document.getElementById('btn-cancel-edit-media').onclick = (e) => { e.preventDefault(); if(document.getElementById('edit-media-modal')) document.getElementById('edit-media-modal').classList.add('hidden'); };
-    if (document.getElementById('btn-cancel-edit-media-2')) document.getElementById('btn-cancel-edit-media-2').onclick = (e) => { e.preventDefault(); if(document.getElementById('edit-media-modal')) document.getElementById('edit-media-modal').classList.add('hidden'); };
 
-    if (document.getElementById('btn-export-all-json')) {
-        document.getElementById('btn-export-all-json').onclick = (e) => {
-            e.preventDefault(); if (database.length === 0) return alert("Banco vazio!");
-            downloadJSON(database, "backup_completo_streamhub");
-        };
-    }
-
-    if (document.getElementById('btn-submit-json-code')) {
-        document.getElementById('btn-submit-json-code').onclick = (e) => { e.preventDefault(); importarCodigoJSON(); };
-    }
-
-    if (document.getElementById('btn-reset-theme')) {
-        document.getElementById('btn-reset-theme').onclick = (e) => {
-            e.preventDefault();
-            if(currentUser) {
-                localStorage.removeItem(`streamhub_theme_${currentUser}`);
-                let corOriginal = USERS_DATABASE[currentUser] ? USERS_DATABASE[currentUser].defaultColor : "#ff0000";
-                aplicarCorTema(corOriginal); posicionarSetaPelaCor(corOriginal);
-            }
-        };
-    }
-
-    const fileImport = document.getElementById('file-import-json');
-    if (fileImport) {
-        fileImport.onchange = (e) => {
-            const file = e.target.files[0]; if (!file) return; const reader = new FileReader();
-            reader.onload = async (evt) => {
-                try {
-                    let parsed = JSON.parse(evt.target.result); let loteValidado = [];
-                    if (Array.isArray(parsed)) loteValidado = parsed; else if (typeof parsed === 'object') Object.keys(parsed).forEach(k => { if(parsed[k]) loteValidado.push(parsed[k]); });
-                    
-                    if (confirm(`Adicionar os itens deste arquivo de backup ao painel atual?`)) {
-                        await processarInjecaoDeDadosAcumulativa(loteValidado);
-                        fileImport.value = "";
-                    }
-                } catch(err) { alert("Erro ao processar arquivo JSON: " + err.message); }
-            }; reader.readAsText(file);
-        };
-    }
-    if (document.getElementById('btn-close-player')) {
-        document.getElementById('btn-close-player').onclick = (e) => {
-            e.preventDefault(); if(ytPlayer && typeof ytPlayer.stopVideo === 'function') { try { ytPlayer.stopVideo(); } catch(err){} }
-            if(document.getElementById('universal-player')) document.getElementById('universal-player').src = "";
-            if(document.getElementById('raw-player')) { document.getElementById('raw-player').pause(); document.getElementById('raw-player').src = ""; }
-            if(document.getElementById('player-container')) document.getElementById('player-container').classList.add('hidden');
-        };
-    }
-    if (document.getElementById('btn-logout')) document.getElementById('btn-logout').onclick = (e) => { e.preventDefault(); handleLogoutActions(); };
-    
-        // MAPEAMENTO REATIVO DOS BOTÕES SWITCH DE TEMAS E ACABAMENTOS
-    ['youtube', 'netflix', 'futurista', 'claro'].forEach(tema => {
-        const btn = document.getElementById(`theme-switch-${tema}`);
-        if (btn) {
-            btn.onclick = () => {
-                const className = tema === 'youtube' ? "" : `theme-${tema}`;
-                document.body.className = className;
-                if(currentUser) localStorage.setItem(`streamhub_layout_mode_${currentUser}`, className);
-            };
-        } // <--- Esta chave fecha o if(btn)
-    }); // <--- Esta chave fecha o forEach
-
-    configurarEventosBuscaCanal(); 
-    inicializarSeletorCoresLinear();
-} // <--- Esta chave fecha a função setupEventListeners
-
-function setupEventListeners() {
-    // Busca e Sidebar
-    if (document.getElementById('search-yt-input')) document.getElementById('search-yt-input').onkeypress = (e) => { if(e.key === 'Enter') searchYouTubeGlobal(e.target.value); };
-    if (document.getElementById('toggle-sidebar')) document.getElementById('toggle-sidebar').onclick = (e) => { e.preventDefault(); handleToggleSidebar(); };
-    
-    // Botão ADMIN - Agora com seletor direto e verificado
+    // Botão ADMIN - Agora unificado
     const btnAdmin = document.getElementById('btn-open-admin');
     if (btnAdmin) {
         btnAdmin.onclick = (e) => { 
@@ -863,10 +787,40 @@ function setupEventListeners() {
         };
     }
 
-    // Outros botões...
-    if (document.getElementById('btn-close-admin')) document.getElementById('btn-close-admin').onclick = (e) => { e.preventDefault(); document.getElementById('admin-modal').classList.add('hidden'); };
+    // Modal Admin e Edição
+    if (document.getElementById('btn-save-media')) document.getElementById('btn-save-media').onclick = (e) => saveMediaToDatabase(e);
+    if (document.getElementById('btn-close-admin')) document.getElementById('btn-close-admin').onclick = (e) => { e.preventDefault(); if(document.getElementById('admin-modal')) document.getElementById('admin-modal').classList.add('hidden'); };
+    if (document.getElementById('tab-trigger-manage')) document.getElementById('tab-trigger-manage').onclick = (e) => { e.preventDefault(); switchTabs('manage-tab', 'tab-trigger-manage'); renderCrudManager(); };
+    if (document.getElementById('tab-trigger-add')) document.getElementById('tab-trigger-add').onclick = (e) => { e.preventDefault(); switchTabs('add-tab', 'tab-trigger-add'); };
+    if (document.getElementById('tab-trigger-channel')) document.getElementById('tab-trigger-channel').onclick = (e) => { e.preventDefault(); switchTabs('channel-tab', 'tab-trigger-channel'); };
+    if (document.getElementById('btn-submit-edit-media')) document.getElementById('btn-submit-edit-media').onclick = (e) => saveAdvancedEditChanges(e);
+    if (document.getElementById('btn-cancel-edit-media')) document.getElementById('btn-cancel-edit-media').onclick = (e) => { e.preventDefault(); if(document.getElementById('edit-media-modal')) document.getElementById('edit-media-modal').classList.add('hidden'); };
+    if (document.getElementById('btn-cancel-edit-media-2')) document.getElementById('btn-cancel-edit-media-2').onclick = (e) => { e.preventDefault(); if(document.getElementById('edit-media-modal')) document.getElementById('edit-media-modal').classList.add('hidden'); };
+
+    // JSON e Temas
+    if (document.getElementById('btn-export-all-json')) document.getElementById('btn-export-all-json').onclick = (e) => { e.preventDefault(); if (database.length === 0) return alert("Banco vazio!"); downloadJSON(database, "backup_completo_streamhub"); };
+    if (document.getElementById('btn-submit-json-code')) document.getElementById('btn-submit-json-code').onclick = (e) => { e.preventDefault(); importarCodigoJSON(); };
+    if (document.getElementById('btn-reset-theme')) {
+        document.getElementById('btn-reset-theme').onclick = (e) => {
+            e.preventDefault();
+            if(currentUser) {
+                localStorage.removeItem(`streamhub_theme_${currentUser}`);
+                let corOriginal = USERS_DATABASE[currentUser] ? USERS_DATABASE[currentUser].defaultColor : "#ff0000";
+                aplicarCorTema(corOriginal); posicionarSetaPelaCor(corOriginal);
+            }
+        };
+    }
+
+    // Player e Logout
+    if (document.getElementById('btn-close-player')) {
+        document.getElementById('btn-close-player').onclick = (e) => {
+            e.preventDefault(); if(ytPlayer && typeof ytPlayer.stopVideo === 'function') { try { ytPlayer.stopVideo(); } catch(err){} }
+            if(document.getElementById('player-container')) document.getElementById('player-container').classList.add('hidden');
+        };
+    }
+    if (document.getElementById('btn-logout')) document.getElementById('btn-logout').onclick = (e) => { e.preventDefault(); handleLogoutActions(); };
     
-    // Temas
+    // Switch de Temas
     ['youtube', 'netflix', 'futurista', 'claro'].forEach(tema => {
         const btn = document.getElementById(`theme-switch-${tema}`);
         if (btn) {
@@ -882,13 +836,8 @@ function setupEventListeners() {
     inicializarSeletorCoresLinear();
 }
 
-// Inicialização total garantida pelo DOMContentLoaded
-document.addEventListener('DOMContentLoaded', () => {
-    configurarEventosLogin();
-    checkSession();
-});
-
-// Inicialização segura dos manipuladores nativos
-configurarEventosLogin(); 
+// Inicialização Única
+configurarEventosLogin();
 checkSession();
+
 

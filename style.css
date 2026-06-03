@@ -50,7 +50,7 @@ body.theme-claro {
     --bg-sidebar: #e4e6eb;
     --text-white: #050505;
     --text-gray: #65676b;
-    --border-color: #ced0d4;
+    --border-color: #9d9d9d;
 }
 
 body.theme-claro h4, 
@@ -72,9 +72,9 @@ body.theme-claro .preview-fields input,
 body.theme-claro .form-group-select select,
 body.theme-claro .action-card-json textarea,
 body.theme-claro .input-block input {
-    background: #f0f2f5 !important;
+    background: #afafaf !important;
     color: #050505 !important;
-    border: 1px solid #ced0d4 !important;
+    border: 1px solid #858585 !important;
 }
 
 body.theme-claro .card {

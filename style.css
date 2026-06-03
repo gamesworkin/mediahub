@@ -185,4 +185,20 @@ button:active { transform: scale(0.98); }
     cursor: pointer !important;
     pointer-events: auto !important;
 }
+#admin-modal {
+    display: flex !important; /* Força o uso de flexbox */
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: rgba(0,0,0,0.85) !important;
+    z-index: 9999 !important; /* Garante que fique por cima de tudo */
+    visibility: visible !important;
+}
+
+/* Remove a classe hidden caso ela esteja com display: none */
+#admin-modal.hidden {
+    display: none !important;
+}
 

@@ -813,9 +813,15 @@ function pularAnterior() {
     }
 }
 
-// Inicialização Unificada
-document.addEventListener('DOMContentLoaded', () => {
+// Inicialização Unificada com verificação de segurança
+window.onload = () => {
+    console.log("DOM carregado. Iniciando sistema...");
     configurarEventosLogin();
     setupEventListeners();
     checkSession();
-});
+};
+
+// Verificação de Erro (Adicione isso logo após as funções de navegação)
+window.onerror = function(message, source, lineno, colno, error) {
+    console.error("ERRO NO SISTEMA:", message, "na linha", lineno);
+};

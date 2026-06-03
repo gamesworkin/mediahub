@@ -789,37 +789,18 @@ function setupEventListeners() {
     }
 
     if (document.getElementById('btn-save-media')) document.getElementById('btn-save-media').onclick = (e) => saveMediaToDatabase(e);
-    if (document.getElementById('btn-open-admin')) document.getElementById('btn-open-admin').onclick = (e) => { e.preventDefault(); if(document.getElementById('admin-modal')) document.getElementById('admin-modal').classList.remove('hidden'); switchTabs('add-tab', 'tab-trigger-add'); renderCrudManager(); };
-    if (document.getElementById('btn-close-admin')) document.getElementById('btn-close-admin').onclick = (e) => { e.preventDefault(); if(document.getElementById('admin-modal')) document.getElementById('admin-modal').classList.add('hidden'); };
-    if (document.getElementById('tab-trigger-manage')) document.getElementById('tab-trigger-manage').onclick = (e) => { e.preventDefault(); switchTabs('manage-tab', 'tab-trigger-manage'); renderCrudManager(); };
-    if (document.getElementById('tab-trigger-add')) document.getElementById('tab-trigger-add').onclick = (e) => { e.preventDefault(); switchTabs('add-tab', 'tab-trigger-add'); };
-    if (document.getElementById('tab-trigger-channel')) document.getElementById('tab-trigger-channel').onclick = (e) => { e.preventDefault(); switchTabs('channel-tab', 'tab-trigger-channel'); };
-    if (document.getElementById('btn-submit-edit-media')) document.getElementById('btn-submit-edit-media').onclick = (e) => saveAdvancedEditChanges(e);
-    if (document.getElementById('btn-cancel-edit-media')) document.getElementById('btn-cancel-edit-media').onclick = (e) => { e.preventDefault(); if(document.getElementById('edit-media-modal')) document.getElementById('edit-media-modal').classList.add('hidden'); };
-    if (document.getElementById('btn-cancel-edit-media-2')) document.getElementById('btn-cancel-edit-media-2').onclick = (e) => { e.preventDefault(); if(document.getElementById('edit-media-modal')) document.getElementById('edit-media-modal').classList.add('hidden'); };
-
-    if (document.getElementById('btn-export-all-json')) {
-        document.getElementById('btn-export-all-json').onclick = (e) => {
-            e.preventDefault(); if (database.length === 0) return alert("Banco vazio!");
-            downloadJSON(database, "backup_completo_streamhub");
-        };
-    }
-
-    if (document.getElementById('btn-submit-json-code')) {
-        document.getElementById('btn-submit-json-code').onclick = (e) => { e.preventDefault(); importarCodigoJSON(); };
-    }
-
-    if (document.getElementById('btn-reset-theme')) {
-        document.getElementById('btn-reset-theme').onclick = (e) => {
-            e.preventDefault();
-            if(currentUser) {
-                localStorage.removeItem(`streamhub_theme_${currentUser}`);
-                let corOriginal = USERS_DATABASE[currentUser] ? USERS_DATABASE[currentUser].defaultColor : "#ff0000";
-                aplicarCorTema(corOriginal); posicionarSetaPelaCor(corOriginal);
+    const btnAdmin = document.getElementById('btn-open-admin');
+    if (btnAdmin) {
+        btnAdmin.onclick = (e) => { 
+            e.preventDefault(); 
+            const modal = document.getElementById('admin-modal');
+            if (modal) {
+                modal.classList.remove('hidden'); 
+                switchTabs('add-tab', 'tab-trigger-add'); 
+                renderCrudManager(); 
             }
         };
     }
-
     const fileImport = document.getElementById('file-import-json');
     if (fileImport) {
         fileImport.onchange = (e) => {

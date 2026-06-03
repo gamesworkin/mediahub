@@ -875,6 +875,18 @@ function setupEventListeners() {
     inicializarSeletorCoresLinear();
 } // <--- Esta chave fecha a função setupEventListeners
 
+document.addEventListener('click', function(e) {
+    if (e.target && e.target.id === 'btn-open-admin' || e.target.closest('#btn-open-admin')) {
+        e.preventDefault();
+        const modal = document.getElementById('admin-modal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            switchTabs('add-tab', 'tab-trigger-add');
+            renderCrudManager();
+        }
+    }
+});
+
 // Inicialização segura dos manipuladores nativos
 configurarEventosLogin(); 
 checkSession();

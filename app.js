@@ -847,7 +847,7 @@ function setupEventListeners() {
     }
     if (document.getElementById('btn-logout')) document.getElementById('btn-logout').onclick = (e) => { e.preventDefault(); handleLogoutActions(); };
     
-    // MAPEAMENTO REATIVO DOS BOTÕES SWITCH DE TEMAS E ACABAMENTOS
+        // MAPEAMENTO REATIVO DOS BOTÕES SWITCH DE TEMAS E ACABAMENTOS
     ['youtube', 'netflix', 'futurista', 'claro'].forEach(tema => {
         const btn = document.getElementById(`theme-switch-${tema}`);
         if (btn) {
@@ -856,10 +856,14 @@ function setupEventListeners() {
                 document.body.className = className;
                 if(currentUser) localStorage.setItem(`streamhub_layout_mode_${currentUser}`, className);
             };
-    }
+        } // <--- Esta chave fecha o if(btn)
+    }); // <--- Esta chave fecha o forEach
 
-    configurarEventosBuscaCanal(); inicializarSeletorCoresLinear();
-} //
+    configurarEventosBuscaCanal(); 
+    inicializarSeletorCoresLinear();
+} // <--- Esta chave fecha a função setupEventListeners
 
 // Inicialização segura dos manipuladores nativos
-configurarEventosLogin(); checkSession();
+configurarEventosLogin(); 
+checkSession();
+

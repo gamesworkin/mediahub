@@ -755,77 +755,56 @@ function switchTabs(targetTabId, activeTriggerBtnId) {
 }
 
 // ==========================================
-// 9. MAPA DE EVENTOS E SWITCH DE TEMAS VISUAIS
+// 9. MAPA DE EVENTOS (DELEGAÇÃO DE EVENTOS)
 // ==========================================
 function setupEventListeners() {
-    console.log("Configurando eventos...");
+    console.log("Registrando delegação de eventos...");
 
-    // Busca e Navegação
-    document.getElementById('search-yt-input')?.addEventListener('keypress', (e) => { if(e.key === 'Enter') searchYouTubeGlobal(e.target.value); });
-    document.getElementById('toggle-sidebar')?.addEventListener('click', (e) => { e.preventDefault(); handleToggleSidebar(); });
-    
-    document.getElementById('btn-open-admin').onclick = (e) => { 
-    e.preventDefault(); 
-    const modal = document.getElementById('admin-modal');
-    if (modal) { 
-        modal.classList.remove('hidden'); 
-        // Força a exibição da aba de gestão para ver se o conteúdo aparece
-        switchTabs('manage-tab', 'tab-trigger-manage'); 
-        renderCrudManager(); 
-    }
-};
+    document.addEventListener('click', (e) => {
+        // Botão ADMIN
+        if (e.target.closest('#btn-open-admin')) {
+            e.preventDefault();
+            const modal = document.getElementById('admin-modal');
+            if (modal) { 
+                modal.classList.remove('hidden'); 
+                switchTabs('manage-tab', 'tab-trigger-manage'); 
+                renderCrudManager(); 
+            }
+        }
 
-    // BOTÕES DE NAVEGAÇÃO
-    document.getElementById('btn-next-track')?.addEventListener('click', pularProxima);
-    document.getElementById('btn-prev-track')?.addEventListener('click', pularAnterior);
+        // Botão PRÓXIMO
+        if (e.target.closest('#btn-next-track')) pularProxima();
 
-    // Outros botões
-    document.getElementById('btn-close-admin')?.addEventListener('click', (e) => { e.preventDefault(); document.getElementById('admin-modal')?.classList.add('hidden'); });
-    document.getElementById('btn-close-player')?.addEventListener('click', (e) => { 
-        e.preventDefault(); 
-        if(ytPlayer?.stopVideo) ytPlayer.stopVideo(); 
-        document.getElementById('player-container')?.classList.add('hidden'); 
-    });
+        // Botão ANTERIOR
+        if (e.target.closest('#btn-prev-track')) pularAnterior();
 
-    // Temas
-    ['youtube', 'netflix', 'futurista', 'claro'].forEach(tema => {
-        document.getElementById(`theme-switch-${tema}`)?.addEventListener('click', () => {
+        // Fechar Admin
+        if (e.target.closest('#btn-close-admin')) {
+            document.getElementById('admin-modal')?.classList.add('hidden');
+        }
+
+        // Fechar Player
+        if (e.target.closest('#btn-close-player')) {
+            if(ytPlayer?.stopVideo) ytPlayer.stopVideo(); 
+            document.getElementById('player-container')?.classList.add('hidden');
+        }
+
+        // Temas
+        const themeBtn = e.target.closest('[id^="theme-switch-"]');
+        if (themeBtn) {
+            const tema = themeBtn.id.replace('theme-switch-', '');
             const className = tema === 'youtube' ? "" : `theme-${tema}`;
             document.body.className = className;
             if(currentUser) localStorage.setItem(`streamhub_layout_mode_${currentUser}`, className);
-        });
+        }
+    });
+
+    // Eventos de teclado (Input específico)
+    document.getElementById('search-yt-input')?.addEventListener('keypress', (e) => { 
+        if(e.key === 'Enter') searchYouTubeGlobal(e.target.value); 
     });
 
     configurarEventosBuscaCanal(); 
     inicializarSeletorCoresLinear();
 }
 
-// Funções de Navegação (Agora integradas)
-function pularProxima() {
-    if (currentTrackIndex + 1 < currentPlaylist.length) {
-        playTrack(currentTrackIndex + 1);
-    } else {
-        alert("Fim da lista.");
-    }
-}
-
-function pularAnterior() {
-    if (currentTrackIndex > 0) {
-        playTrack(currentTrackIndex - 1);
-    } else {
-        alert("Início da lista.");
-    }
-}
-
-// Inicialização Unificada com verificação de segurança
-window.onload = () => {
-    console.log("DOM carregado. Iniciando sistema...");
-    configurarEventosLogin();
-    setupEventListeners();
-    checkSession();
-};
-
-// Verificação de Erro (Adicione isso logo após as funções de navegação)
-window.onerror = function(message, source, lineno, colno, error) {
-    console.error("ERRO NO SISTEMA:", message, "na linha", lineno);
-};

@@ -859,7 +859,7 @@ function setupEventListeners() {
     }
 
     configurarEventosBuscaCanal(); inicializarSeletorCoresLinear();
-}
+} //
 
 // Inicialização segura dos manipuladores nativos
 configurarEventosLogin(); checkSession();

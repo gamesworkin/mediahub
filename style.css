@@ -45,7 +45,7 @@ body.theme-futurista .card {
    ESCOPO 4: TEMA CLARO MODERNO (NOVO)
    ========================================== */
 body.theme-claro {
-    --bg-main: #9c9c9c;
+    --bg-main: #c7c7c7;
     --bg-card: #d1d1d1;
     --bg-sidebar: #8e8e8e;
     --text-white: #050505;
@@ -84,7 +84,7 @@ body.theme-claro .card {
 body.theme-claro .crud-item,
 body.theme-claro .action-card-json,
 body.theme-claro .preview-card-box {
-    background: #f0f2f5 !important;
+    background: #8c8c8c !important;
     border: 1px solid #8a8a8a !important;
 }
 

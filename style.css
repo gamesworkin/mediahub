@@ -141,12 +141,21 @@ button:active { transform: scale(0.98); }
    5. TEMAS FLUTUANTES E RESPONSIVIDADE
    ========================================== */
 .theme-switcher-float { position: fixed; bottom: 20px; right: 20px; z-index: 999; background: #202024; border: 1px solid #29292e; padding: 10px; border-radius: 30px; display: flex; gap: 8px; align-items: center; }
-.theme-btn-toggle { width: 35px; height: 35px; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: #fff; font-size: 1rem; transition: transform 0.2s, background 0.2s; }
-.theme-btn-toggle:hover { transform: scale(1.15); }
-.btn-t-yt { background: #ff0000; }
-.btn-t-nf { background: #e50914; }
-.btn-t-ft { background: #00f0ff; color: #000; }
-.btn-t-cl { background: #f1c40f; color: #fff; }
+/* ... mantenha tudo o que você já tem, apenas substitua as seções abaixo pelas versões corrigidas abaixo: ... */
+
+/* RESTABELECENDO CORES DOS ÍCONES DOS TEMAS */
+.theme-btn-toggle { 
+    width: 35px; height: 35px; border-radius: 50%; 
+    display: flex; justify-content: center; align-items: center; 
+    color: #fff !important; /* Força a cor branca do ícone */
+    font-size: 1rem; transition: transform 0.2s, background 0.2s;
+}
+
+.btn-t-yt { background: #ff0000 !important; }
+.btn-t-nf { background: #e50914 !important; }
+.btn-t-ft { background: #00f0ff !important; color: #000 !important; }
+.btn-t-cl { background: #f1c40f !important; color: #fff !important; }
+
 
 @media (max-width: 768px) {
     .btn-mobile-only { display: block !important; }
@@ -163,5 +172,6 @@ button:active { transform: scale(0.98); }
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0,0,0,0.85); z-index: 999;
     display: flex; justify-content: center; align-items: center;
+    overflow-y: auto; /* Garante que o layout completo apareça */
 }
 #admin-modal.hidden { display: none !important; }

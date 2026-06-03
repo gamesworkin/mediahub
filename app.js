@@ -510,47 +510,47 @@ function configurarVolume() {
     const slider = document.getElementById('player-volume-slider');
     const btnMute = document.getElementById('btn-mute-toggle');
     
-    if (!slider) return;
+    // Debug: Verifica se os elementos foram encontrados
+    console.log("Debug Slider:", slider);
+    console.log("Debug Botão Mute:", btnMute);
+    
+    if (!slider) {
+        console.error("ERRO: O elemento com ID 'player-volume-slider' não foi encontrado no seu HTML!");
+        return;
+    }
 
-    slider.oninput = (e) => {
+    slider.addEventListener('input', (e) => {
+        console.log("Volume alterado para: " + e.target.value);
         const val = e.target.value;
         playerVolumeAnterior = val;
 
-        // 1. YouTube API (O controle mais preciso)
         if (ytPlayer && typeof ytPlayer.setVolume === 'function') {
             ytPlayer.setVolume(val);
         }
-
-        // 2. Player de arquivos Raw (MP4/etc)
         const raw = document.getElementById('raw-player');
         if (raw) raw.volume = val / 100;
-
-        // Nota: O 'universal-player' (iframe) não aceita controle de volume por JS
-        // Se ele estiver visível, o volume deve ser controlado pelo próprio usuário no player
-    };
+    });
     
     if (btnMute) {
-        btnMute.onclick = () => {
+        btnMute.addEventListener('click', () => {
+            console.log("Botão Mute clicado!");
             if (!playerEstaMutado) {
-                // Muta
                 if (ytPlayer && ytPlayer.mute) ytPlayer.mute();
                 const raw = document.getElementById('raw-player');
                 if (raw) raw.muted = true;
-                
                 btnMute.innerHTML = '<i class="fas fa-volume-mute"></i>';
                 playerEstaMutado = true;
             } else {
-                // Desmuta
                 if (ytPlayer && ytPlayer.unMute) ytPlayer.unMute();
                 const raw = document.getElementById('raw-player');
                 if (raw) raw.muted = false;
-                
                 btnMute.innerHTML = '<i class="fas fa-volume-up"></i>';
                 playerEstaMutado = false;
             }
-        };
+        });
     }
 }
+
 
 // ==========================================
 // 7. ÁRVORE GERENCIAL SANFONA (CRUD COMPLETO REAL-TIME FIX)

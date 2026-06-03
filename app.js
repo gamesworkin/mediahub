@@ -804,7 +804,9 @@ function setupEventListeners() {
         if(e.key === 'Enter') searchYouTubeGlobal(e.target.value); 
     });
 
-    configurarEventosBuscaCanal(); 
-    inicializarSeletorCoresLinear();
-}
+// <--- Esta chave fecha a função setupEventListeners
+
+// Inicialização segura dos manipuladores nativos
+configurarEventosLogin(); 
+checkSession();
 

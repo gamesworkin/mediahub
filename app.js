@@ -755,41 +755,24 @@ function switchTabs(targetTabId, activeTriggerBtnId) {
 }
 
 // ==========================================
-// 9. MAPA DE EVENTOS (DELEGAÇÃO DE EVENTOS)
+// 9. MAPA DE EVENTOS E INICIALIZAÇÃO
 // ==========================================
 function setupEventListeners() {
-    console.log("Registrando delegação de eventos...");
+    console.log("Sistema pronto. Conectando eventos...");
 
+    // Delegação de eventos (Funciona mesmo que elementos sejam criados depois)
     document.addEventListener('click', (e) => {
-        // Botão ADMIN
         if (e.target.closest('#btn-open-admin')) {
             e.preventDefault();
             const modal = document.getElementById('admin-modal');
-            if (modal) { 
-                modal.classList.remove('hidden'); 
-                switchTabs('manage-tab', 'tab-trigger-manage'); 
-                renderCrudManager(); 
-            }
+            if (modal) { modal.classList.remove('hidden'); switchTabs('add-tab', 'tab-trigger-add'); renderCrudManager(); }
         }
-
-        // Botão PRÓXIMO
         if (e.target.closest('#btn-next-track')) pularProxima();
-
-        // Botão ANTERIOR
         if (e.target.closest('#btn-prev-track')) pularAnterior();
-
-        // Fechar Admin
-        if (e.target.closest('#btn-close-admin')) {
-            document.getElementById('admin-modal')?.classList.add('hidden');
-        }
-
-        // Fechar Player
-        if (e.target.closest('#btn-close-player')) {
-            if(ytPlayer?.stopVideo) ytPlayer.stopVideo(); 
-            document.getElementById('player-container')?.classList.add('hidden');
-        }
-
-        // Temas
+        if (e.target.closest('#btn-close-admin')) document.getElementById('admin-modal')?.classList.add('hidden');
+        if (e.target.closest('#btn-close-player')) document.getElementById('player-container')?.classList.add('hidden');
+        if (e.target.closest('#btn-logout')) handleLogoutActions();
+        
         const themeBtn = e.target.closest('[id^="theme-switch-"]');
         if (themeBtn) {
             const tema = themeBtn.id.replace('theme-switch-', '');
@@ -799,14 +782,21 @@ function setupEventListeners() {
         }
     });
 
-    // Eventos de teclado (Input específico)
-    document.getElementById('search-yt-input')?.addEventListener('keypress', (e) => { 
-        if(e.key === 'Enter') searchYouTubeGlobal(e.target.value); 
-    });
+    // Eventos específicos que precisam de listener direto
+    document.getElementById('search-yt-input')?.addEventListener('keypress', (e) => { if(e.key === 'Enter') searchYouTubeGlobal(e.target.value); });
+    
+    configurarEventosBuscaCanal(); 
+    inicializarSeletorCoresLinear();
+}
 
-// <--- Esta chave fecha a função setupEventListeners
+// Funções de Navegação
+function pularProxima() { if (currentTrackIndex + 1 < currentPlaylist.length) playTrack(currentTrackIndex + 1); }
+function pularAnterior() { if (currentTrackIndex > 0) playTrack(currentTrackIndex - 1); }
 
-// Inicialização segura dos manipuladores nativos
-configurarEventosLogin(); 
-checkSession();
-
+// INICIALIZAÇÃO DEFINITIVA
+// Esta ordem garante que: 1. Login conecta, 2. Eventos globais funcionam, 3. Firebase checa sessão.
+document.addEventListener('DOMContentLoaded', () => {
+    configurarEventosLogin(); // Garante que o login funcione
+    setupEventListeners();    // Garante que os cliques funcionem
+    checkSession();           // Inicia o resto
+});

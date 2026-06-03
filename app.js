@@ -230,7 +230,7 @@ async function recarregarDadosDoBanco() {
             else { Object.keys(data).forEach(key => { if (data[key]) database.push({ idFirebase: key, ...data[key] }); }); }
         }
     } catch (e) { console.log("Erro ao carregar mídias.", e); }
-    finally { renderSidebar(); renderMosaic(); setupEventListeners(); alimentarSeletorCategoriasCanais(); }
+    finally { renderSidebar(); renderMosaic(); alimentarSeletorCategoriasCanais(); }
 }
 
 async function carregarCanaisDinamicos() {
@@ -867,3 +867,9 @@ function setupEventListeners() {
 configurarEventosLogin(); 
 checkSession();
 
+// Inicialização unificada após o carregamento total do HTML
+document.addEventListener('DOMContentLoaded', () => {
+    configurarEventosLogin();
+    setupEventListeners(); // Configura os botões da interface AGORA, não depois do banco
+    checkSession();
+});

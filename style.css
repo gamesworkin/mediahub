@@ -193,7 +193,6 @@ button:active { transform: scale(0.98); }
     width: 100% !important;
     height: 100% !important;
     background: rgba(0,0,0,0.85) !important;
-    z-index: 9999 !important; /* Garante que fique por cima de tudo */
     visibility: visible !important;
 }
 

@@ -481,24 +481,72 @@ function extractPlaylistId(url) { const reg = /[&?]list=([^#\&\?]+)/; const matc
 // 6. REPRODUÇÃO TRIPLA DO PLAYER
 // ==========================================
 function playTrack(index) {
-    if(currentPlaylist.length === 0) return; currentTrackIndex = index; const track = currentPlaylist[index];
-    if (document.getElementById('player-container')) document.getElementById('player-container').classList.remove('hidden');
-    if (document.getElementById('current-track-title')) document.getElementById('current-track-title').innerText = track.título;
+    if (index < 0 || index >= currentPlaylist.length) return;
+    
+    currentTrackIndex = index;
+    const track = currentPlaylist[index];
+    
+    // Atualiza título e exibe o player
+    const playerContainer = document.getElementById('player-container');
+    const titleEl = document.getElementById('current-track-title');
+    if (playerContainer) playerContainer.classList.remove('hidden');
+    if (titleEl) titleEl.innerText = track.título;
 
-    const ytPlayerEl = document.getElementById('yt-player'); const univPlayerEl = document.getElementById('universal-player'); const rawPlayerEl = document.getElementById('raw-player');
-    if (univPlayerEl) univPlayerEl.src = ""; if (rawPlayerEl) rawPlayerEl.src = "";
-    if (univPlayerEl) univPlayerEl.classList.add('hidden'); if (rawPlayerEl) rawPlayerEl.classList.add('hidden'); if (ytPlayerEl) ytPlayerEl.classList.remove('hidden');
-    if (rawPlayerEl) rawPlayerEl.pause(); const linkOriginal = track.link.trim(); const vId = extractYoutubeId(linkOriginal);
+    const ytPlayerEl = document.getElementById('yt-player');
+    const univPlayerEl = document.getElementById('universal-player');
+    const rawPlayerEl = document.getElementById('raw-player');
 
-    if(vId) {
+    // Esconde todos inicialmente
+    [ytPlayerEl, univPlayerEl, rawPlayerEl].forEach(el => {
+        if (el) el.classList.add('hidden');
+    });
+
+    const linkOriginal = track.link.trim();
+    const vId = extractYoutubeId(linkOriginal);
+
+    if (vId) {
+        // Reprodução YouTube (API)
         if (ytPlayerEl) ytPlayerEl.classList.remove('hidden');
-        if (!ytPlayer) { ytPlayer = new YT.Player('yt-player', { videoId: vId, playerVars: { 'autoplay': 1, 'playsinline': 1, 'enablejsapi': 1 }, events: { 'onStateChange': (e) => { if(e.data === 0 && currentTrackIndex + 1 < currentPlaylist.length) playTrack(currentTrackIndex + 1); } } }); } 
-        else { ytPlayer.loadVideoById(vId); }
-    } 
-    else if(linkOriginal.toLowerCase().endsWith('.mp4') || linkOriginal.toLowerCase().endsWith('.mkv') || linkOriginal.toLowerCase().includes('raw.githubusercontent')) {
-        if (rawPlayerEl) { rawPlayerEl.classList.remove('hidden'); rawPlayerEl.src = linkOriginal; rawPlayerEl.play(); rawPlayerEl.onended = () => { if(currentTrackIndex + 1 < currentPlaylist.length) playTrack(currentTrackIndex + 1); }; }
-    } 
-    else { if (univPlayerEl) { univPlayerEl.classList.remove('hidden'); univPlayerEl.src = linkOriginal.includes("archive.org/details/") ? linkOriginal.replace("archive.org/details/", "archive.org/embed/") : linkOriginal; } }
+        if (!ytPlayer) {
+            ytPlayer = new YT.Player('yt-player', {
+                videoId: vId,
+                playerVars: { 'autoplay': 1, 'playsinline': 1 },
+                events: {
+                    'onStateChange': (e) => { if (e.data === 0) pularProxima(); }
+                }
+            });
+        } else {
+            ytPlayer.loadVideoById(vId);
+        }
+    } else if (linkOriginal.toLowerCase().match(/\.(mp4|mkv|webm)$/)) {
+        // Reprodução Vídeo Raw
+        if (rawPlayerEl) {
+            rawPlayerEl.classList.remove('hidden');
+            rawPlayerEl.src = linkOriginal;
+            rawPlayerEl.play();
+            rawPlayerEl.onended = () => pularProxima();
+        }
+    } else {
+        // Universal (Iframe geral)
+        if (univPlayerEl) {
+            univPlayerEl.classList.remove('hidden');
+            univPlayerEl.src = linkOriginal.includes("archive.org/details/") ? linkOriginal.replace("archive.org/details/", "archive.org/embed/") : linkOriginal;
+        }
+    }
+}
+
+function pularProxima() {
+    if (currentTrackIndex + 1 < currentPlaylist.length) {
+        playTrack(currentTrackIndex + 1);
+    } else {
+        console.log("Fim da playlist.");
+    }
+}
+
+function pularAnterior() {
+    if (currentTrackIndex > 0) {
+        playTrack(currentTrackIndex - 1);
+    }
 }
 
 function extractYoutubeId(url) {

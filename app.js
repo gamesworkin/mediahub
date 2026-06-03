@@ -506,6 +506,50 @@ function extractYoutubeId(url) {
     if (match && match[2].length === 11) return match[2]; if (url.trim().length === 11 && !url.includes('/') && !url.includes('.')) return url.trim(); return null;
 }
 
+function configurarVolume() {
+    const slider = document.getElementById('player-volume-slider');
+    const btnMute = document.getElementById('btn-mute-toggle');
+    
+    if (slider) {
+        slider.oninput = (e) => {
+            const vol = e.target.value / 100;
+            // Volume YouTube (API)
+            if (ytPlayer && typeof ytPlayer.setVolume === 'function') ytPlayer.setVolume(e.target.value);
+            // Volume Players HTML5
+            const raw = document.getElementById('raw-player');
+            const univ = document.getElementById('universal-player');
+            if (raw) raw.volume = vol;
+            if (univ) univ.volume = vol;
+            playerVolumeAnterior = e.target.value;
+        };
+    }
+    
+    if (btnMute) {
+        btnMute.onclick = () => {
+            const playerRaw = document.getElementById('raw-player');
+            const playerUniv = document.getElementById('universal-player');
+            
+            if (!playerEstaMutado) {
+                playerVolumeAnterior = slider.value;
+                slider.value = 0;
+                if (ytPlayer && ytPlayer.mute) ytPlayer.mute();
+                if (playerRaw) playerRaw.muted = true;
+                if (playerUniv) playerUniv.muted = true;
+                btnMute.innerHTML = '<i class="fas fa-volume-mute"></i>';
+                playerEstaMutado = true;
+            } else {
+                slider.value = playerVolumeAnterior;
+                if (ytPlayer && ytPlayer.unMute) { ytPlayer.unMute(); ytPlayer.setVolume(playerVolumeAnterior); }
+                if (playerRaw) { playerRaw.muted = false; playerRaw.volume = playerVolumeAnterior / 100; }
+                if (playerUniv) { playerUniv.muted = false; playerUniv.volume = playerVolumeAnterior / 100; }
+                btnMute.innerHTML = '<i class="fas fa-volume-up"></i>';
+                playerEstaMutado = false;
+            }
+        };
+    }
+}
+
+
 // ==========================================
 // 7. ÁRVORE GERENCIAL SANFONA (CRUD COMPLETO REAL-TIME FIX)
 // ==========================================

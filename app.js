@@ -789,7 +789,19 @@ function setupEventListeners() {
     }
 
     if (document.getElementById('btn-save-media')) document.getElementById('btn-save-media').onclick = (e) => saveMediaToDatabase(e);
-    if (document.getElementById('btn-open-admin')) document.getElementById('btn-open-admin').onclick = (e) => { e.preventDefault(); if(document.getElementById('admin-modal')) document.getElementById('admin-modal').classList.remove('hidden'); switchTabs('add-tab', 'tab-trigger-add'); renderCrudManager(); };
+        const btnAdmin = document.getElementById('btn-open-admin');
+    if (btnAdmin) {
+        btnAdmin.onclick = (e) => { 
+            e.preventDefault(); 
+            const modal = document.getElementById('admin-modal');
+            if (modal) {
+                modal.classList.remove('hidden'); 
+                switchTabs('add-tab', 'tab-trigger-add'); 
+                renderCrudManager(); 
+            }
+        };
+    }
+
     if (document.getElementById('btn-close-admin')) document.getElementById('btn-close-admin').onclick = (e) => { e.preventDefault(); if(document.getElementById('admin-modal')) document.getElementById('admin-modal').classList.add('hidden'); };
     if (document.getElementById('tab-trigger-manage')) document.getElementById('tab-trigger-manage').onclick = (e) => { e.preventDefault(); switchTabs('manage-tab', 'tab-trigger-manage'); renderCrudManager(); };
     if (document.getElementById('tab-trigger-add')) document.getElementById('tab-trigger-add').onclick = (e) => { e.preventDefault(); switchTabs('add-tab', 'tab-trigger-add'); };

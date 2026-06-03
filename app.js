@@ -758,28 +758,29 @@ function switchTabs(targetTabId, activeTriggerBtnId) {
 // 9. MAPA DE EVENTOS E SWITCH DE TEMAS VISUAIS
 // ==========================================
 function setupEventListeners() {
-    console.log("Configurando eventos da interface...");
+    console.log("Configurando eventos...");
 
     // Busca e Navegação
     document.getElementById('search-yt-input')?.addEventListener('keypress', (e) => { if(e.key === 'Enter') searchYouTubeGlobal(e.target.value); });
     document.getElementById('toggle-sidebar')?.addEventListener('click', (e) => { e.preventDefault(); handleToggleSidebar(); });
     
-    // Botão ADMIN (Fixado)
+    // Botão ADMIN
     document.getElementById('btn-open-admin')?.addEventListener('click', (e) => { 
         e.preventDefault(); 
         const modal = document.getElementById('admin-modal');
         if (modal) { modal.classList.remove('hidden'); switchTabs('add-tab', 'tab-trigger-add'); renderCrudManager(); }
     });
 
-    // BOTÕES DE NAVEGAÇÃO DO PLAYER (Próximo / Anterior)
+    // BOTÕES DE NAVEGAÇÃO
     document.getElementById('btn-next-track')?.addEventListener('click', pularProxima);
     document.getElementById('btn-prev-track')?.addEventListener('click', pularAnterior);
 
-    // Fechar Player
-    document.getElementById('btn-close-player')?.addEventListener('click', (e) => {
-        e.preventDefault();
-        if(ytPlayer && typeof ytPlayer.stopVideo === 'function') try { ytPlayer.stopVideo(); } catch(err){}
-        document.getElementById('player-container')?.classList.add('hidden');
+    // Outros botões
+    document.getElementById('btn-close-admin')?.addEventListener('click', (e) => { e.preventDefault(); document.getElementById('admin-modal')?.classList.add('hidden'); });
+    document.getElementById('btn-close-player')?.addEventListener('click', (e) => { 
+        e.preventDefault(); 
+        if(ytPlayer?.stopVideo) ytPlayer.stopVideo(); 
+        document.getElementById('player-container')?.classList.add('hidden'); 
     });
 
     // Temas
@@ -791,17 +792,16 @@ function setupEventListeners() {
         });
     });
 
-    // Inicializações de componentes
     configurarEventosBuscaCanal(); 
     inicializarSeletorCoresLinear();
 }
 
-// Funções de Navegação de Playlist
+// Funções de Navegação (Agora integradas)
 function pularProxima() {
     if (currentTrackIndex + 1 < currentPlaylist.length) {
         playTrack(currentTrackIndex + 1);
     } else {
-        alert("Fim da playlist.");
+        alert("Fim da lista.");
     }
 }
 
@@ -813,9 +813,9 @@ function pularAnterior() {
     }
 }
 
-// Inicialização Única e Segura
+// Inicialização Unificada
 document.addEventListener('DOMContentLoaded', () => {
     configurarEventosLogin();
-    setupEventListeners(); // Configura os botões da UI primeiro
-    checkSession();        // Depois checa a sessão e inicia o carregamento dos dados
+    setupEventListeners();
+    checkSession();
 });

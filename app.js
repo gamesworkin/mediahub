@@ -17,7 +17,7 @@ if (!firebase.apps.length) {
 
 const USERS_DATABASE = {
     "diego@midias.com": { 
-        defaultColor: "#096be5",
+        defaultColor: "#11ffcf",
         firebaseUrl: "https://workin--music-default-rtdb.firebaseio.com/midias.json",
         ytApiKey: "AIzaSyATXiihPhDZohvy8mJKsAk8vjZ4WkPekmQ"
     },

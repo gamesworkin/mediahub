@@ -26,6 +26,16 @@ const USERS_DATABASE = {
         firebaseUrl: "https://workin--music-default-rtdb.firebaseio.com/canais.json",
         ytApiKey: "AIzaSyD2x7SjdblFqlxQdKHlgfSZA5Nmjb1QbMk"
     },
+    "di@c.com": { 
+        defaultColor: "#ff0000",
+        firebaseUrl: "https://workin--music-default-rtdb.firebaseio.com/c.json",
+        ytApiKey: "AIzaSyD2x7SjdblFqlxQdKHlgfSZA5Nmjb1QbMk"
+    },
+    "di@m.com": { 
+        defaultColor: "#11ffcf",
+        firebaseUrl: "https://workin--music-default-rtdb.firebaseio.com/m.json",
+        ytApiKey: "AIzaSyATXiihPhDZohvy8mJKsAk8vjZ4WkPekmQ"
+    },
 };
 
 let CONFIG = { YT_API_KEY: "", FIREBASE_URL: "" };
